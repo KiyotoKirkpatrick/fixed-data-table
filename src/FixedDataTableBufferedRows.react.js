@@ -23,7 +23,6 @@ var translateDOMPositionXY = require('translateDOMPositionXY');
 var PropTypes = require('prop-types');
 
 var FixedDataTableBufferedRows = createReactClass({
-
   propTypes: {
     isScrolling: PropTypes.bool,
     defaultRowHeight: PropTypes.number.isRequired,
@@ -44,44 +43,46 @@ var FixedDataTableBufferedRows = createReactClass({
     scrollLeft: PropTypes.number.isRequired,
     scrollableColumns: PropTypes.array.isRequired,
     showLastRowBorder: PropTypes.bool,
-    width: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired
   },
 
   getInitialState() /*object*/ {
-    this._rowBuffer =
-      new FixedDataTableRowBuffer(
-        this.props.rowsCount,
-        this.props.defaultRowHeight,
-        this.props.height,
-        this._getRowHeight
-      );
-    return ({
+    this._rowBuffer = new FixedDataTableRowBuffer(
+      this.props.rowsCount,
+      this.props.defaultRowHeight,
+      this.props.height,
+      this._getRowHeight
+    );
+    return {
       rowsToRender: this._rowBuffer.getRows(
         this.props.firstRowIndex,
         this.props.firstRowOffset
-      ),
-    });
+      )
+    };
   },
 
   componentWillMount() {
     this._staticRowArray = [];
+    this._isMounted = false;
   },
 
   componentDidMount() {
+    this._isMounted = true;
     setTimeout(this._updateBuffer, 1000);
   },
 
   componentWillReceiveProps(/*object*/ nextProps) {
-    if (nextProps.rowsCount !== this.props.rowsCount ||
-        nextProps.defaultRowHeight !== this.props.defaultRowHeight ||
-        nextProps.height !== this.props.height) {
-      this._rowBuffer =
-        new FixedDataTableRowBuffer(
-          nextProps.rowsCount,
-          nextProps.defaultRowHeight,
-          nextProps.height,
-          this._getRowHeight
-        );
+    if (
+      nextProps.rowsCount !== this.props.rowsCount ||
+      nextProps.defaultRowHeight !== this.props.defaultRowHeight ||
+      nextProps.height !== this.props.height
+    ) {
+      this._rowBuffer = new FixedDataTableRowBuffer(
+        nextProps.rowsCount,
+        nextProps.defaultRowHeight,
+        nextProps.height,
+        this._getRowHeight
+      );
     }
     if (this.props.isScrolling && !nextProps.isScrolling) {
       this._updateBuffer();
@@ -90,15 +91,15 @@ var FixedDataTableBufferedRows = createReactClass({
         rowsToRender: this._rowBuffer.getRows(
           nextProps.firstRowIndex,
           nextProps.firstRowOffset
-        ),
+        )
       });
     }
   },
 
   _updateBuffer() {
-    if (this.isMounted()) {
+    if (this._isMounted) {
       this.setState({
-        rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer(),
+        rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer()
       });
     }
   },
@@ -110,6 +111,7 @@ var FixedDataTableBufferedRows = createReactClass({
 
   componentWillUnmount() {
     this._staticRowArray.length = 0;
+    this._isMounted = false;
   },
 
   render() /*object*/ {
@@ -128,7 +130,7 @@ var FixedDataTableBufferedRows = createReactClass({
       var hasBottomBorder =
         rowIndex === props.rowsCount - 1 && props.showLastRowBorder;
 
-      this._staticRowArray[i] =
+      this._staticRowArray[i] = (
         <FixedDataTableRow
           key={i}
           isScrolling={props.isScrolling}
@@ -149,17 +151,18 @@ var FixedDataTableBufferedRows = createReactClass({
             cx('public/fixedDataTable/bodyRow'),
             cx({
               'fixedDataTableLayout/hasBottomBorder': hasBottomBorder,
-              'public/fixedDataTable/hasBottomBorder': hasBottomBorder,
+              'public/fixedDataTable/hasBottomBorder': hasBottomBorder
             })
           )}
-        />;
+        />
+      );
     }
 
     var firstRowPosition = props.rowPositionGetter(props.firstRowIndex);
 
     var style = {
       position: 'absolute',
-      pointerEvents: props.isScrolling ? 'none' : 'auto',
+      pointerEvents: props.isScrolling ? 'none' : 'auto'
     };
 
     translateDOMPositionXY(
@@ -172,10 +175,10 @@ var FixedDataTableBufferedRows = createReactClass({
   },
 
   _getRowHeight(/*number*/ index) /*number*/ {
-    return this.props.rowHeightGetter ?
-      this.props.rowHeightGetter(index) :
-      this.props.defaultRowHeight;
-  },
+    return this.props.rowHeightGetter
+      ? this.props.rowHeightGetter(index)
+      : this.props.defaultRowHeight;
+  }
 });
 
 module.exports = FixedDataTableBufferedRows;

@@ -27,7 +27,7 @@ var PropTypes = require('prop-types');
 
 var UNSCROLLABLE_STATE = {
   position: 0,
-  scrollable: false,
+  scrollable: false
 };
 
 var FACE_MARGIN = parseInt(cssVar('scrollbar-face-margin'), 10);
@@ -93,7 +93,7 @@ var Scrollbar = createReactClass({
       isOpaque: false,
       onScroll: emptyFunction,
       orientation: 'vertical',
-      zIndex: 99,
+      zIndex: 99
     };
   },
 
@@ -118,7 +118,7 @@ var Scrollbar = createReactClass({
       'ScrollbarLayout/mainHorizontal': isHorizontal,
       'public/Scrollbar/main': true,
       'public/Scrollbar/mainOpaque': isOpaque,
-      'public/Scrollbar/mainActive': isActive,
+      'public/Scrollbar/mainActive': isActive
     });
 
     var faceClassName = cx({
@@ -126,14 +126,14 @@ var Scrollbar = createReactClass({
       'ScrollbarLayout/faceHorizontal': isHorizontal,
       'ScrollbarLayout/faceVertical': isVertical,
       'public/Scrollbar/faceActive': isActive,
-      'public/Scrollbar/face': true,
+      'public/Scrollbar/face': true
     });
 
     var position = this.state.position * this.state.scale + FACE_MARGIN;
 
     if (isHorizontal) {
       mainStyle = {
-        width: size,
+        width: size
       };
       faceStyle = {
         width: faceSize - FACE_MARGIN_2
@@ -142,10 +142,10 @@ var Scrollbar = createReactClass({
     } else {
       mainStyle = {
         top: verticalTop,
-        height: size,
+        height: size
       };
       faceStyle = {
-        height: faceSize - FACE_MARGIN_2,
+        height: faceSize - FACE_MARGIN_2
       };
       translateDOMPositionXY(faceStyle, 0, position);
     }
@@ -165,12 +165,9 @@ var Scrollbar = createReactClass({
         onWheel={this._wheelHandler.onWheel}
         className={mainClassName}
         style={mainStyle}
-        tabIndex={0}>
-        <div
-          ref="face"
-          className={faceClassName}
-          style={faceStyle}
-        />
+        tabIndex={0}
+      >
+        <div ref="face" className={faceClassName} style={faceStyle} />
       </div>
     );
   },
@@ -184,6 +181,7 @@ var Scrollbar = createReactClass({
       this._shouldHandleX, // Should hanlde horizontal scroll
       this._shouldHandleY // Should handle vertical scroll
     );
+    this._isMounted = false;
   },
 
   componentDidMount() {
@@ -193,10 +191,13 @@ var Scrollbar = createReactClass({
       document.documentElement
     );
 
-    if (this.props.position !== undefined &&
-      this.state.position !== this.props.position) {
+    if (
+      this.props.position !== undefined &&
+      this.state.position !== this.props.position
+    ) {
       this._didScroll();
     }
+    this._isMounted = true;
   },
 
   componentWillUnmount() {
@@ -206,6 +207,7 @@ var Scrollbar = createReactClass({
       _lastScrolledScrollbar = null;
     }
     delete this._mouseMoveTracker;
+    this._isMounted = false;
   },
 
   scrollBy(/*number*/ delta) {
@@ -213,15 +215,15 @@ var Scrollbar = createReactClass({
   },
 
   _shouldHandleX(/*number*/ delta) /*boolean*/ {
-    return this.props.orientation === 'horizontal' ?
-      this._shouldHandleChange(delta) :
-      false;
+    return this.props.orientation === 'horizontal'
+      ? this._shouldHandleChange(delta)
+      : false;
   },
 
   _shouldHandleY(/*number*/ delta) /*boolean*/ {
-    return this.props.orientation !== 'horizontal' ?
-      this._shouldHandleChange(delta) :
-      false;
+    return this.props.orientation !== 'horizontal'
+      ? this._shouldHandleChange(delta)
+      : false;
   },
 
   _shouldHandleChange(/*number*/ delta) /*boolean*/ {
@@ -273,9 +275,9 @@ var Scrollbar = createReactClass({
       position = maxPosition;
     }
 
-    var isDragging = this._mouseMoveTracker ?
-      this._mouseMoveTracker.isDragging() :
-      false;
+    var isDragging = this._mouseMoveTracker
+      ? this._mouseMoveTracker.isDragging()
+      : false;
 
     // This function should only return flat values that can be compared quiclky
     // by `ReactComponentWithPureRenderMixin`.
@@ -285,7 +287,7 @@ var Scrollbar = createReactClass({
       isHorizontal,
       position,
       scale,
-      scrollable,
+      scrollable
     };
 
     // cache the state for later use.
@@ -324,16 +326,16 @@ var Scrollbar = createReactClass({
       // Both `offsetX` and `layerX` are non-standard DOM property but they are
       // magically available for browsers somehow.
       var nativeEvent = event.nativeEvent;
-      var position = this.state.isHorizontal ?
-        nativeEvent.offsetX || nativeEvent.layerX :
-        nativeEvent.offsetY || nativeEvent.layerY;
+      var position = this.state.isHorizontal
+        ? nativeEvent.offsetX || nativeEvent.layerX
+        : nativeEvent.offsetY || nativeEvent.layerY;
 
       // MouseDown on the scroll-track directly, move the center of the
       // scroll-face to the mouse position.
       var props = this.props;
       position /= this.state.scale;
       nextState = this._calculateState(
-        position - (this.state.faceSize * 0.5 / this.state.scale),
+        position - this.state.faceSize * 0.5 / this.state.scale,
         props.size,
         props.contentSize,
         props.orientation
@@ -368,7 +370,7 @@ var Scrollbar = createReactClass({
   _onMouseMoveEnd() {
     this._nextState = null;
     this._mouseMoveTracker.releaseMouseMoves();
-    this.setState({isDragging: false});
+    this.setState({ isDragging: false });
   },
 
   _onKeyDown(/*object*/ event) {
@@ -445,7 +447,7 @@ var Scrollbar = createReactClass({
     var props = this.props;
     this._setNextState(
       this._calculateState(
-        this.state.position + (distance * direction),
+        this.state.position + distance * direction,
         props.size,
         props.contentSize,
         props.orientation
@@ -455,18 +457,18 @@ var Scrollbar = createReactClass({
 
   _onFocus() {
     this.setState({
-      focused: true,
+      focused: true
     });
   },
 
   _onBlur() {
     this.setState({
-      focused: false,
+      focused: false
     });
   },
 
   _blur() {
-    if (this.isMounted()) {
+    if (this._isMounted) {
       try {
         this._onBlur();
         ReactDOM.findDOMNode(this).blur();
@@ -488,8 +490,10 @@ var Scrollbar = createReactClass({
     } else {
       // Scrolling is controlled. Don't update the state and let the owner
       // to update the scrollbar instead.
-      if (nextState.position !== undefined &&
-        nextState.position !== this.state.position) {
+      if (
+        nextState.position !== undefined &&
+        nextState.position !== this.state.position
+      ) {
         this.props.onScroll(nextState.position);
       }
       return;
@@ -503,7 +507,7 @@ var Scrollbar = createReactClass({
 
   _didScroll() {
     this.props.onScroll(this.state.position);
-  },
+  }
 });
 
 Scrollbar.KEYBOARD_SCROLL_AMOUNT = KEYBOARD_SCROLL_AMOUNT;

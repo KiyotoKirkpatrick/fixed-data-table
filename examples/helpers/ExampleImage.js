@@ -19,12 +19,12 @@ var ReadyPool = {};
 
 var ExampleImage = createReactClass({
   propTypes: {
-    src: PropTypes.string.isRequired,
+    src: PropTypes.string.isRequired
   },
 
   getInitialState() {
     return {
-      ready: false,
+      ready: false
     };
   },
 
@@ -34,22 +34,27 @@ var ExampleImage = createReactClass({
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.src !== this.props.src) {
-      this.setState({src: null});
+      this.setState({ src: null });
       this._load(nextProps.src);
     }
   },
 
   render() {
-    var style = this.state.src ?
-      { backgroundImage : 'url(' + this.state.src + ')'} :
-      undefined;
+    var style = this.state.src
+      ? { backgroundImage: 'url(' + this.state.src + ')' }
+      : undefined;
 
     return <div className="exampleImage" style={style} />;
   },
-
+  componentDidMount() {
+    this._isMounted = true;
+  },
+  componentWillUnMount() {
+    this._isMounted = false;
+  },
   _load(/*string*/ src) {
     if (ReadyPool[src]) {
-      this.setState({src: src});
+      this.setState({ src: src });
       return;
     }
 
@@ -62,9 +67,11 @@ var ExampleImage = createReactClass({
 
     var img = new Image();
     img.onload = () => {
-      PendingPool[src].forEach(/*function*/ callback => {
-        callback(src);
-      });
+      PendingPool[src].forEach(
+        /*function*/ callback => {
+          callback(src);
+        }
+      );
       delete PendingPool[src];
       img.onload = null;
       src = undefined;
@@ -74,13 +81,12 @@ var ExampleImage = createReactClass({
 
   _onLoad(/*string*/ src) {
     ReadyPool[src] = true;
-    if (this.isMounted() && src === this.props.src) {
+    if (this._isMounted && src === this.props.src) {
       this.setState({
-        src: src,
+        src: src
       });
     }
-  },
+  }
 });
-
 
 module.exports = ExampleImage;
