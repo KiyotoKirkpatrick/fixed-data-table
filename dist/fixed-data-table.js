@@ -1,5 +1,5 @@
 /**
- * FixedDataTable v0.6.5 
+ * FixedDataTable v0.6.6 
  *
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -187,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  Table: FixedDataTable
 	};
 
-	FixedDataTableRoot.version = '0.6.5';
+	FixedDataTableRoot.version = '0.6.6';
 	module.exports = FixedDataTableRoot;
 
 /***/ }),
@@ -2956,9 +2956,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *   vertically or horizontally.
 	 */
 	var FixedDataTable = createReactClass({
-
 	  propTypes: {
-
 	    /**
 	     * Pixel width of table. If all columns do not fit,
 	     * a horizontal scrollbar will appear.
@@ -3154,6 +3152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this._columnToScrollTo = scrollToColumn;
 	    }
 	    this._wheelHandler = new ReactWheelHandler(this._onWheel, this._shouldHandleWheelX, this._shouldHandleWheelY);
+	    this._isMounted = false;
 	  },
 
 	  _shouldHandleWheelX: function _shouldHandleWheelX( /*number*/delta) /*boolean*/{
@@ -3203,6 +3202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  componentDidMount: function componentDidMount() {
 	    this._reportContentHeight();
+	    this._isMounted = true;
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps( /*object*/nextProps) {
@@ -3370,12 +3370,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      {
 	        className: joinClasses(cx('fixedDataTableLayout/main'), cx('public/fixedDataTable/main')),
 	        onWheel: this._wheelHandler.onWheel,
-	        style: { height: state.height, width: state.width } },
+	        style: { height: state.height, width: state.width }
+	      },
 	      React.createElement(
 	        'div',
 	        {
 	          className: cx('fixedDataTableLayout/rowsContainer'),
-	          style: { height: rowsContainerHeight, width: state.width } },
+	          style: { height: rowsContainerHeight, width: state.width }
+	        },
 	        dragKnob,
 	        groupHeader,
 	        header,
@@ -3388,7 +3390,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      horizontalScrollbar
 	    );
 	  },
-
+	  componentWillUnmount: function componentWillUnmount() {
+	    this._isMounted = false;
+	  },
 	  _renderRows: function _renderRows( /*number*/offsetTop) /*object*/{
 	    var state = this.state;
 
@@ -3707,7 +3711,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _onWheel: function _onWheel( /*number*/deltaX, /*number*/deltaY) {
-	    if (this.isMounted()) {
+	    if (this._isMounted) {
 	      if (!this._isScrolling) {
 	        this._didScrollStart();
 	      }
@@ -3736,7 +3740,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _onHorizontalScroll: function _onHorizontalScroll( /*number*/scrollPos) {
-	    if (this.isMounted() && scrollPos !== this.state.scrollX) {
+	    if (this._isMounted && scrollPos !== this.state.scrollX) {
 	      if (!this._isScrolling) {
 	        this._didScrollStart();
 	      }
@@ -3748,7 +3752,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _onVerticalScroll: function _onVerticalScroll( /*number*/scrollPos) {
-	    if (this.isMounted() && scrollPos !== this.state.scrollY) {
+	    if (this._isMounted && scrollPos !== this.state.scrollY) {
 	      if (!this._isScrolling) {
 	        this._didScrollStart();
 	      }
@@ -3764,7 +3768,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _didScrollStart: function _didScrollStart() {
-	    if (this.isMounted() && !this._isScrolling) {
+	    if (this._isMounted && !this._isScrolling) {
 	      this._isScrolling = true;
 	      if (this.props.onScrollStart) {
 	        this.props.onScrollStart(this.state.scrollX, this.state.scrollY);
@@ -3773,7 +3777,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _didScrollStop: function _didScrollStop() {
-	    if (this.isMounted() && this._isScrolling) {
+	    if (this._isMounted && this._isScrolling) {
 	      this._isScrolling = false;
 	      this.setState({ redraw: true });
 	      if (this.props.onScrollEnd) {
@@ -3810,7 +3814,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      'div',
 	      {
 	        className: joinClasses(cx('fixedDataTableLayout/horizontalScrollbar'), cx('public/fixedDataTable/horizontalScrollbar')),
-	        style: outerContainerStyle },
+	        style: outerContainerStyle
+	      },
 	      React.createElement(
 	        'div',
 	        { style: innerContainerStyle },
@@ -4866,12 +4871,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        onWheel: this._wheelHandler.onWheel,
 	        className: mainClassName,
 	        style: mainStyle,
-	        tabIndex: 0 },
-	      React.createElement('div', {
-	        ref: 'face',
-	        className: faceClassName,
-	        style: faceStyle
-	      })
+	        tabIndex: 0
+	      },
+	      React.createElement('div', { ref: 'face', className: faceClassName, style: faceStyle })
 	    );
 	  },
 
@@ -4882,6 +4884,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._wheelHandler = new ReactWheelHandler(onWheel, this._shouldHandleX, // Should hanlde horizontal scroll
 	    this._shouldHandleY // Should handle vertical scroll
 	    );
+	    this._isMounted = false;
 	  },
 
 	  componentDidMount: function componentDidMount() {
@@ -4890,6 +4893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (this.props.position !== undefined && this.state.position !== this.props.position) {
 	      this._didScroll();
 	    }
+	    this._isMounted = true;
 	  },
 
 	  componentWillUnmount: function componentWillUnmount() {
@@ -4899,6 +4903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      _lastScrolledScrollbar = null;
 	    }
 	    delete this._mouseMoveTracker;
+	    this._isMounted = false;
 	  },
 
 	  scrollBy: function scrollBy( /*number*/delta) {
@@ -5119,7 +5124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _blur: function _blur() {
-	    if (this.isMounted()) {
+	    if (this._isMounted) {
 	      try {
 	        this._onBlur();
 	        ReactDOM.findDOMNode(this).blur();
@@ -5890,7 +5895,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var PropTypes = __webpack_require__(37);
 
 	var FixedDataTableBufferedRows = createReactClass({
-
 	  propTypes: {
 	    isScrolling: PropTypes.bool,
 	    defaultRowHeight: PropTypes.number.isRequired,
@@ -5923,9 +5927,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  componentWillMount: function componentWillMount() {
 	    this._staticRowArray = [];
+	    this._isMounted = false;
 	  },
 
 	  componentDidMount: function componentDidMount() {
+	    this._isMounted = true;
 	    setTimeout(this._updateBuffer, 1000);
 	  },
 
@@ -5943,7 +5949,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  _updateBuffer: function _updateBuffer() {
-	    if (this.isMounted()) {
+	    if (this._isMounted) {
 	      this.setState({
 	        rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer()
 	      });
@@ -5957,6 +5963,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  componentWillUnmount: function componentWillUnmount() {
 	    this._staticRowArray.length = 0;
+	    this._isMounted = false;
 	  },
 
 	  render: function render() /*object*/{

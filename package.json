@@ -1,8 +1,7 @@
 {
-  "name": "fixed-data-table1",
-  "version": "0.6.5",
-  "description":
-    "A React table component designed to allow presenting thousands of rows of data.",
+  "name": "fixed-data-table-16",
+  "version": "0.6.6",
+  "description": "A React table component designed to allow presenting thousands of rows of data.",
   "main": "main.js",
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0 || ^16.2.0",
@@ -57,6 +56,15 @@
     "url": "https://github.com/canhoviet/fixed-data-table/issues"
   },
   "homepage": "http://canhoviet.github.io/fixed-data-table",
-  "tags": ["react", "table"],
-  "keywords": ["react", "react-component", "table", "data-table", "fixed-table"]
+  "tags": [
+    "react",
+    "table"
+  ],
+  "keywords": [
+    "react",
+    "react-component",
+    "table",
+    "data-table",
+    "fixed-table"
+  ]
 }
