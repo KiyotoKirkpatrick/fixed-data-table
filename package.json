@@ -1,7 +1,8 @@
 {
-  "name": "fixed-data-table",
+  "name": "fixed-data-table1",
   "version": "0.6.5",
-  "description": "A React table component designed to allow presenting thousands of rows of data.",
+  "description":
+    "A React table component designed to allow presenting thousands of rows of data.",
   "main": "main.js",
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0 || ^16.2.0",
@@ -49,22 +50,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/facebook/fixed-data-table.git"
+    "url": "https://github.com/canhoviet/fixed-data-table.git"
   },
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/facebook/fixed-data-table/issues"
+    "url": "https://github.com/canhoviet/fixed-data-table/issues"
   },
-  "homepage": "http://facebook.github.io/fixed-data-table",
-  "tags": [
-    "react",
-    "table"
-  ],
-  "keywords": [
-    "react",
-    "react-component",
-    "table",
-    "data-table",
-    "fixed-table"
-  ]
+  "homepage": "http://canhoviet.github.io/fixed-data-table",
+  "tags": ["react", "table"],
+  "keywords": ["react", "react-component", "table", "data-table", "fixed-table"]
 }
