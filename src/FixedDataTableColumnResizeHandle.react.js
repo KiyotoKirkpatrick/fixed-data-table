@@ -113,43 +113,40 @@ var FixedDataTableColumnResizeHandle = createReactClass({
   },
 
   render() /*object*/ {
+    var props = this.props;
     var style = {
       width: this.state.width,
-      height: this.props.height
+      height: props.height
     };
     if (Locale.isRTL()) {
-      style.right = this.props.leftOffset;
+      style.right = props.leftOffset;
     } else {
-      style.left = this.props.leftOffset;
+      style.left = props.leftOffset;
     }
     return (
       <div
         className={cx({
           'fixedDataTableColumnResizerLineLayout/main': true,
-          'fixedDataTableColumnResizerLineLayout/hiddenElem': !this.props
-            .visible,
+          'fixedDataTableColumnResizerLineLayout/hiddenElem': !props.visible,
           'public/fixedDataTableColumnResizerLine/main': true
         })}
         style={style}
       >
         <div
           className={cx('fixedDataTableColumnResizerLineLayout/mouseArea')}
-          style={{ height: this.props.height }}
+          style={{ height: props.height }}
         />
       </div>
     );
   },
 
   _onMove(/*number*/ deltaX) {
+    var props = this.props;
     if (Locale.isRTL()) {
       deltaX = -deltaX;
     }
     var newWidth = this.state.cursorDelta + deltaX;
-    var newColumnWidth = clamp(
-      newWidth,
-      this.props.minWidth,
-      this.props.maxWidth
-    );
+    var newColumnWidth = clamp(newWidth, props.minWidth, props.maxWidth);
 
     // Please note cursor delta is the different between the currently width
     // and the new width.

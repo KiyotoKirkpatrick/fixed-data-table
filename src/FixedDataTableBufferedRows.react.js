@@ -71,10 +71,11 @@ var FixedDataTableBufferedRows = createReactClass({
   },
 
   componentWillReceiveProps(/*object*/ nextProps) {
+    var props = this.props;
     if (
-      nextProps.rowsCount !== this.props.rowsCount ||
-      nextProps.defaultRowHeight !== this.props.defaultRowHeight ||
-      nextProps.height !== this.props.height
+      nextProps.rowsCount !== props.rowsCount ||
+      nextProps.defaultRowHeight !== props.defaultRowHeight ||
+      nextProps.height !== props.height
     ) {
       this._rowBuffer = new FixedDataTableRowBuffer(
         nextProps.rowsCount,
@@ -83,7 +84,7 @@ var FixedDataTableBufferedRows = createReactClass({
         this._getRowHeight
       );
     }
-    if (this.props.isScrolling && !nextProps.isScrolling) {
+    if (props.isScrolling && !nextProps.isScrolling) {
       this._updateBuffer();
     } else {
       this.setState({
@@ -117,31 +118,41 @@ var FixedDataTableBufferedRows = createReactClass({
 
     var rowsToRender = this.state.rowsToRender;
     this._staticRowArray.length = rowsToRender.length;
-
+    var rowsCount = props.rowsCount;
+    var isScrolling = props.isScrolling;
+    var width = props.width;
+    var scrollLeft = Math.round(props.scrollLeft);
+    var fixedColumns = props.fixedColumns;
+    var scrollableColumns = props.scrollableColumns;
+    var onRowClick = props.onRowClick;
+    var onRowDoubleClick = props.onRowDoubleClick;
+    var onRowMouseDown = props.onRowMouseDown;
+    var onRowMouseEnter = props.onRowMouseEnter;
+    var onRowMouseLeave = props.onRowMouseLeave;
+    var showLastRowBorder = props.showLastRowBorder;
     for (var i = 0; i < rowsToRender.length; ++i) {
       var rowIndex = rowsToRender[i];
       var currentRowHeight = this._getRowHeight(rowIndex);
       var rowOffsetTop = rowPositionGetter(rowIndex);
 
-      var hasBottomBorder =
-        rowIndex === props.rowsCount - 1 && props.showLastRowBorder;
+      var hasBottomBorder = rowIndex === rowsCount - 1 && showLastRowBorder;
 
       this._staticRowArray[i] = (
         <FixedDataTableRow
           key={i}
-          isScrolling={props.isScrolling}
+          isScrolling={isScrolling}
           index={rowIndex}
-          width={props.width}
+          width={width}
           height={currentRowHeight}
-          scrollLeft={Math.round(props.scrollLeft)}
+          scrollLeft={scrollLeft}
           offsetTop={Math.round(rowOffsetTop)}
-          fixedColumns={props.fixedColumns}
-          scrollableColumns={props.scrollableColumns}
-          onClick={props.onRowClick}
-          onDoubleClick={props.onRowDoubleClick}
-          onMouseDown={props.onRowMouseDown}
-          onMouseEnter={props.onRowMouseEnter}
-          onMouseLeave={props.onRowMouseLeave}
+          fixedColumns={fixedColumns}
+          scrollableColumns={scrollableColumns}
+          onClick={onRowClick}
+          onDoubleClick={onRowDoubleClick}
+          onMouseDown={onRowMouseDown}
+          onMouseEnter={onRowMouseEnter}
+          onMouseLeave={onRowMouseLeave}
           className={joinClasses(
             rowClassNameGetter(rowIndex),
             cx('public/fixedDataTable/bodyRow'),
@@ -171,9 +182,9 @@ var FixedDataTableBufferedRows = createReactClass({
   },
 
   _getRowHeight(/*number*/ index) /*number*/ {
-    return this.props.rowHeightGetter
-      ? this.props.rowHeightGetter(index)
-      : this.props.defaultRowHeight;
+    var props = this.props;
+    var rowHeightGetter = props.rowHeightGetter;
+    return rowHeightGetter ? rowHeightGetter(index) : props.defaultRowHeight;
   }
 });
 

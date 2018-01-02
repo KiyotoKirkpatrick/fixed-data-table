@@ -166,12 +166,13 @@ var FixedDataTableCell = createReactClass({
   },
 
   _onColumnResizerMouseDown(/*object*/ event) {
-    this.props.onColumnResize(
-      this.props.left,
-      this.props.width,
-      this.props.minWidth,
-      this.props.maxWidth,
-      this.props.columnKey,
+    var props = this.props;
+    props.onColumnResize(
+      props.left,
+      props.width,
+      props.minWidth,
+      props.maxWidth,
+      props.columnKey,
       event
     );
   }

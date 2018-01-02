@@ -99,19 +99,20 @@ var Scrollbar = createReactClass({
   },
 
   render() /*?object*/ {
-    if (!this.state.scrollable) {
+    var state = this.state;
+    if (!state.scrollable) {
       return null;
     }
-
-    var size = this.props.size;
+    var props = this.props;
+    var size = props.size;
     var mainStyle;
     var faceStyle;
-    var isHorizontal = this.state.isHorizontal;
+    var isHorizontal = state.isHorizontal;
     var isVertical = !isHorizontal;
-    var isActive = this.state.focused || this.state.isDragging;
-    var faceSize = this.state.faceSize;
-    var isOpaque = this.props.isOpaque;
-    var verticalTop = this.props.verticalTop || 0;
+    var isActive = state.focused || state.isDragging;
+    var faceSize = state.faceSize;
+    var isOpaque = props.isOpaque;
+    var verticalTop = props.verticalTop || 0;
 
     var mainClassName = cx({
       'ScrollbarLayout/main': true,
@@ -130,7 +131,7 @@ var Scrollbar = createReactClass({
       'public/Scrollbar/face': true
     });
 
-    var position = this.state.position * this.state.scale + FACE_MARGIN;
+    var position = state.position * state.scale + FACE_MARGIN;
 
     if (isHorizontal) {
       mainStyle = {
@@ -151,9 +152,9 @@ var Scrollbar = createReactClass({
       translateDOMPositionXY(faceStyle, 0, position);
     }
 
-    mainStyle.zIndex = this.props.zIndex;
+    mainStyle.zIndex = props.zIndex;
 
-    if (this.props.trackColor === 'gray') {
+    if (props.trackColor === 'gray') {
       mainStyle.backgroundColor = cssVar('fbui-desktop-background-light');
     }
 
@@ -225,13 +226,15 @@ var Scrollbar = createReactClass({
   },
 
   _shouldHandleChange(/*number*/ delta) /*boolean*/ {
+    var state = this.state;
+    var props = this.props;
     var nextState = this._calculateState(
-      this.state.position + delta,
-      this.props.size,
-      this.props.contentSize,
-      this.props.orientation
+      state.position + delta,
+      props.size,
+      props.contentSize,
+      props.orientation
     );
-    return nextState.position !== this.state.position;
+    return nextState.position !== state.position;
   },
 
   _calculateState(
@@ -323,17 +326,18 @@ var Scrollbar = createReactClass({
     if (event.target !== ReactDOM.findDOMNode(this.refs.face)) {
       // Both `offsetX` and `layerX` are non-standard DOM property but they are
       // magically available for browsers somehow.
+      var props = this.props;
+      var state = this.state;
       var nativeEvent = event.nativeEvent;
-      var position = this.state.isHorizontal
+      var position = state.isHorizontal
         ? nativeEvent.offsetX || nativeEvent.layerX
         : nativeEvent.offsetY || nativeEvent.layerY;
 
       // MouseDown on the scroll-track directly, move the center of the
       // scroll-face to the mouse position.
-      var props = this.props;
-      position /= this.state.scale;
+      position /= state.scale;
       nextState = this._calculateState(
-        position - this.state.faceSize * 0.5 / this.state.scale,
+        position - state.faceSize * 0.5 / state.scale,
         props.size,
         props.contentSize,
         props.orientation
@@ -352,12 +356,13 @@ var Scrollbar = createReactClass({
 
   _onMouseMove(/*number*/ deltaX, /*number*/ deltaY) {
     var props = this.props;
-    var delta = this.state.isHorizontal ? deltaX : deltaY;
-    delta /= this.state.scale;
+    var state = this.state;
+    var delta = state.isHorizontal ? deltaX : deltaY;
+    delta /= state.scale;
 
     this._setNextState(
       this._calculateState(
-        this.state.position + delta,
+        state.position + delta,
         props.size,
         props.contentSize,
         props.orientation
@@ -378,15 +383,17 @@ var Scrollbar = createReactClass({
       // Let focus move off the scrollbar.
       return;
     }
-
+    var state = this.state;
+    var props = this.props;
+    var contentSize = props.contentSize;
     var distance = KEYBOARD_SCROLL_AMOUNT;
     var direction = 0;
-
-    if (this.state.isHorizontal) {
+    var size = props.size;
+    if (state.isHorizontal) {
       switch (keyCode) {
         case Keys.HOME:
           direction = -1;
-          distance = this.props.contentSize;
+          distance = contentSize;
           break;
 
         case Keys.LEFT:
@@ -402,7 +409,7 @@ var Scrollbar = createReactClass({
       }
     }
 
-    if (!this.state.isHorizontal) {
+    if (!state.isHorizontal) {
       switch (keyCode) {
         case Keys.SPACE:
           if (event.shiftKey) {
@@ -414,7 +421,7 @@ var Scrollbar = createReactClass({
 
         case Keys.HOME:
           direction = -1;
-          distance = this.props.contentSize;
+          distance = contentSize;
           break;
 
         case Keys.UP:
@@ -427,12 +434,12 @@ var Scrollbar = createReactClass({
 
         case Keys.PAGE_UP:
           direction = -1;
-          distance = this.props.size;
+          distance = size;
           break;
 
         case Keys.PAGE_DOWN:
           direction = 1;
-          distance = this.props.size;
+          distance = size;
           break;
 
         default:
@@ -442,12 +449,11 @@ var Scrollbar = createReactClass({
 
     event.preventDefault();
 
-    var props = this.props;
     this._setNextState(
       this._calculateState(
-        this.state.position + distance * direction,
-        props.size,
-        props.contentSize,
+        state.position + distance * direction,
+        size,
+        contentSize,
         props.orientation
       )
     );
