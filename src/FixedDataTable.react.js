@@ -328,10 +328,10 @@ var FixedDataTable = createReactClass({
     if (delta === 0) {
       return false;
     }
-
+    var state = this.state;
+    var scrollX = state.scrollX;
     return (
-      (delta < 0 && this.state.scrollX > 0) ||
-      (delta >= 0 && this.state.scrollX < this.state.maxScrollX)
+      (delta < 0 && scrollX > 0) || (delta >= 0 && scrollX < state.maxScrollX)
     );
   },
 
@@ -344,10 +344,10 @@ var FixedDataTable = createReactClass({
     if (delta === 0) {
       return false;
     }
-
+    var state = this.state;
+    var scrollY = state.scrollY;
     return (
-      (delta < 0 && this.state.scrollY > 0) ||
-      (delta >= 0 && this.state.scrollY < this.state.maxScrollY)
+      (delta < 0 && scrollY > 0) || (delta >= 0 && scrollY < state.maxScrollY)
     );
   },
   _shouldHandleTouchX(/*number*/ delta) /*boolean*/ {
@@ -358,23 +358,22 @@ var FixedDataTable = createReactClass({
     return this.props.touchScrollEnabled && this._shouldHandleWheelY(delta);
   },
   _reportContentHeight() {
-    var scrollContentHeight = this.state.scrollContentHeight;
-    var reservedHeight = this.state.reservedHeight;
+    var state = this.state;
+    var scrollContentHeight = state.scrollContentHeight;
+    var reservedHeight = state.reservedHeight;
     var requiredHeight = scrollContentHeight + reservedHeight;
     var contentHeight;
-    var useMaxHeight = this.props.height === undefined;
-    if (useMaxHeight && this.props.maxHeight > requiredHeight) {
+    var props = this.props;
+    var useMaxHeight = props.height === undefined;
+    if (useMaxHeight && props.maxHeight > requiredHeight) {
       contentHeight = requiredHeight;
-    } else if (this.state.height > requiredHeight && this.props.ownerHeight) {
-      contentHeight = Math.max(requiredHeight, this.props.ownerHeight);
+    } else if (state.height > requiredHeight && props.ownerHeight) {
+      contentHeight = Math.max(requiredHeight, props.ownerHeight);
     } else {
-      contentHeight = this.state.height + this.state.maxScrollY;
+      contentHeight = state.height + state.maxScrollY;
     }
-    if (
-      contentHeight !== this._contentHeight &&
-      this.props.onContentHeightChange
-    ) {
-      this.props.onContentHeightChange(contentHeight);
+    if (contentHeight !== this._contentHeight && props.onContentHeightChange) {
+      props.onContentHeightChange(contentHeight);
     }
     this._contentHeight = contentHeight;
   },
@@ -450,7 +449,7 @@ var FixedDataTable = createReactClass({
       );
     }
 
-    var maxScrollY = this.state.maxScrollY;
+    var maxScrollY = state.maxScrollY;
     var showScrollbarX = state.maxScrollX > 0 && state.overflowX !== 'hidden';
     var showScrollbarY = maxScrollY > 0 && state.overflowY !== 'hidden';
     var scrollbarXHeight = showScrollbarX ? Scrollbar.SIZE : 0;
@@ -1020,17 +1019,15 @@ var FixedDataTable = createReactClass({
     if (!this._isScrolling) {
       this._didScrollStart();
     }
-    var x = this.state.scrollX;
-    if (
-      Math.abs(deltaY) > Math.abs(deltaX) &&
-      this.props.overflowY !== 'hidden'
-    ) {
+    var state = this.state;
+    var props = this.props;
+    if (Math.abs(deltaY) > Math.abs(deltaX) && props.overflowY !== 'hidden') {
       var scrollState = this._scrollHelper.scrollBy(Math.round(deltaY));
-      var onVerticalScroll = this.props.onVerticalScroll;
+      var onVerticalScroll = props.onVerticalScroll;
       if (onVerticalScroll ? onVerticalScroll(scrollState.position) : true) {
         var maxScrollY = Math.max(
           0,
-          scrollState.contentHeight - this.state.bodyHeight
+          scrollState.contentHeight - state.bodyHeight
         );
         this.setState({
           firstRowIndex: scrollState.index,
@@ -1040,11 +1037,12 @@ var FixedDataTable = createReactClass({
           maxScrollY: maxScrollY
         });
       }
-    } else if (deltaX && this.props.overflowX !== 'hidden') {
+    } else if (deltaX && props.overflowX !== 'hidden') {
+      var x = state.scrollX;
       x += deltaX;
       x = x < 0 ? 0 : x;
-      x = x > this.state.maxScrollX ? this.state.maxScrollX : x;
-      var onHorizontalScroll = this.props.onHorizontalScroll;
+      x = x > state.maxScrollX ? state.maxScrollX : x;
+      var onHorizontalScroll = props.onHorizontalScroll;
       if (onHorizontalScroll ? onHorizontalScroll(x) : true) {
         this.setState({
           scrollX: x
