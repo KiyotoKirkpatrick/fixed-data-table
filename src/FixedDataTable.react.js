@@ -17,6 +17,7 @@ var React = require('React');
 var createReactClass = require('create-react-class');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 var ReactWheelHandler = require('ReactWheelHandler');
+var ReactTouchHandler = require('ReactTouchHandler');
 var Scrollbar = require('Scrollbar.react');
 var FixedDataTableBufferedRows = require('FixedDataTableBufferedRows.react');
 var FixedDataTableColumnResizeHandle = require('FixedDataTableColumnResizeHandle.react');
@@ -296,11 +297,12 @@ var FixedDataTable = createReactClass({
   },
 
   componentWillMount() {
-    var scrollToRow = this.props.scrollToRow;
+    var props = this.props;
+    var scrollToRow = props.scrollToRow;
     if (scrollToRow !== undefined && scrollToRow !== null) {
       this._rowToScrollTo = scrollToRow;
     }
-    var scrollToColumn = this.props.scrollToColumn;
+    var scrollToColumn = props.scrollToColumn;
     if (scrollToColumn !== undefined && scrollToColumn !== null) {
       this._columnToScrollTo = scrollToColumn;
     }
@@ -308,6 +310,12 @@ var FixedDataTable = createReactClass({
       this._onWheel,
       this._shouldHandleWheelX,
       this._shouldHandleWheelY
+    );
+    this._touchHandler = new ReactTouchHandler(
+      this._onWheel,
+      this._shouldHandleTouchX,
+      this._shouldHandleTouchY,
+      props.stopScrollPropagation
     );
   },
 
@@ -342,7 +350,13 @@ var FixedDataTable = createReactClass({
       (delta >= 0 && this.state.scrollY < this.state.maxScrollY)
     );
   },
+  _shouldHandleTouchX(/*number*/ delta) /*boolean*/ {
+    return this.props.touchScrollEnabled && this._shouldHandleWheelX(delta);
+  },
 
+  _shouldHandleTouchY(/*number*/ delta) /*boolean*/ {
+    return this.props.touchScrollEnabled && this._shouldHandleWheelY(delta);
+  },
   _reportContentHeight() {
     var scrollContentHeight = this.state.scrollContentHeight;
     var reservedHeight = this.state.reservedHeight;
@@ -587,6 +601,10 @@ var FixedDataTable = createReactClass({
           cx('fixedDataTableLayout/main'),
           cx('public/fixedDataTable/main')
         )}
+        onTouchStart={this._touchHandler.onTouchStart}
+        onTouchEnd={this._touchHandler.onTouchEnd}
+        onTouchMove={this._touchHandler.onTouchMove}
+        onTouchCancel={this._touchHandler.onTouchCancel}
         onWheel={this._wheelHandler.onWheel}
         style={{ height: state.height, width: state.width }}
       >
@@ -608,6 +626,8 @@ var FixedDataTable = createReactClass({
     );
   },
   componentWillUnmount() {
+    this._wheelHandler = null;
+    this._touchHandler = null;
     // Cancel any pending debounced scroll handling and handle immediately.
     this._didScrollStop.reset();
     this._didScrollStopSync();
