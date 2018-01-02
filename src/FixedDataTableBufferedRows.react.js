@@ -64,11 +64,9 @@ var FixedDataTableBufferedRows = createReactClass({
 
   componentWillMount() {
     this._staticRowArray = [];
-    this._isMounted = false;
   },
 
   componentDidMount() {
-    this._isMounted = true;
     setTimeout(this._updateBuffer, 1000);
   },
 
@@ -98,11 +96,9 @@ var FixedDataTableBufferedRows = createReactClass({
   },
 
   _updateBuffer() {
-    if (this._isMounted) {
-      this.setState({
-        rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer()
-      });
-    }
+    this.setState({
+      rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer()
+    });
   },
 
   shouldComponentUpdate() /*boolean*/ {
@@ -112,7 +108,6 @@ var FixedDataTableBufferedRows = createReactClass({
 
   componentWillUnmount() {
     this._staticRowArray.length = 0;
-    this._isMounted = false;
   },
 
   render() /*object*/ {

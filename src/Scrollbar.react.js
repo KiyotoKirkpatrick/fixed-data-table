@@ -182,7 +182,6 @@ var Scrollbar = createReactClass({
       this._shouldHandleX, // Should hanlde horizontal scroll
       this._shouldHandleY // Should handle vertical scroll
     );
-    this._isMounted = false;
   },
 
   componentDidMount() {
@@ -198,7 +197,6 @@ var Scrollbar = createReactClass({
     ) {
       this._didScroll();
     }
-    this._isMounted = true;
   },
 
   componentWillUnmount() {
@@ -208,7 +206,6 @@ var Scrollbar = createReactClass({
       _lastScrolledScrollbar = null;
     }
     delete this._mouseMoveTracker;
-    this._isMounted = false;
   },
 
   scrollBy(/*number*/ delta) {
@@ -469,13 +466,11 @@ var Scrollbar = createReactClass({
   },
 
   _blur() {
-    if (this._isMounted) {
-      try {
-        this._onBlur();
-        ReactDOM.findDOMNode(this).blur();
-      } catch (oops) {
-        // pass
-      }
+    try {
+      this._onBlur();
+      ReactDOM.findDOMNode(this).blur();
+    } catch (oops) {
+      // pass
     }
   },
 

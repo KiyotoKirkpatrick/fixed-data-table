@@ -46,12 +46,6 @@ var ExampleImage = createReactClass({
 
     return <div className="exampleImage" style={style} />;
   },
-  componentDidMount() {
-    this._isMounted = true;
-  },
-  componentWillUnMount() {
-    this._isMounted = false;
-  },
   _load(/*string*/ src) {
     if (ReadyPool[src]) {
       this.setState({ src: src });
@@ -81,7 +75,7 @@ var ExampleImage = createReactClass({
 
   _onLoad(/*string*/ src) {
     ReadyPool[src] = true;
-    if (this._isMounted && src === this.props.src) {
+    if (src === this.props.src) {
       this.setState({
         src: src
       });
