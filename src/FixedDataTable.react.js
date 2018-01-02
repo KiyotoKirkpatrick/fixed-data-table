@@ -291,8 +291,7 @@ var FixedDataTable = createReactClass({
     if (props.scrollTop) {
       this._scrollHelper.scrollTo(props.scrollTop);
     }
-    this._didScrollStop = debounceCore(this._didScrollStop, 200, this);
-
+    this._didScrollStop = debounceCore(this._didScrollStopSync, 200, this);
     return this._calculateState(this.props);
   },
 
@@ -402,8 +401,9 @@ var FixedDataTable = createReactClass({
     ) {
       this._didScrollStart();
     }
-    this._didScrollStop();
-
+    // Cancel any pending debounced scroll handling and handle immediately.
+    this._didScrollStop.reset();
+    this._didScrollStopSync();
     this.setState(this._calculateState(nextProps, this.state));
   },
 
@@ -611,6 +611,9 @@ var FixedDataTable = createReactClass({
   },
   componentWillUnmount() {
     this._isMounted = false;
+    // Cancel any pending debounced scroll handling and handle immediately.
+    this._didScrollStop.reset();
+    this._didScrollStopSync();
   },
   _renderRows(/*number*/ offsetTop) /*object*/ {
     var state = this.state;
@@ -1080,7 +1083,10 @@ var FixedDataTable = createReactClass({
     }
   },
 
-  _didScrollStop() {
+  // We need two versions of this function, one to finish up synchronously (for
+  // example, in componentWillUnmount), and a debounced version for normal
+  // scroll handling.
+  _didScrollStopSync() {
     if (this._isMounted && this._isScrolling) {
       this._isScrolling = false;
       this.setState({ redraw: true });
