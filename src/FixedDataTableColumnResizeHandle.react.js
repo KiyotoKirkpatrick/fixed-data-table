@@ -26,6 +26,7 @@ var cx = require('cx');
 var PropTypes = require('prop-types');
 
 var FixedDataTableColumnResizeHandle = createReactClass({
+  displayName: 'FixedDataTableColumnResizeHandle',
   mixins: [ReactComponentWithPureRenderMixin],
 
   propTypes: {
@@ -78,10 +79,7 @@ var FixedDataTableColumnResizeHandle = createReactClass({
     /**
      * Column key for the column being resized.
      */
-    columnKey: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number
-    ]),
+    columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   },
 
   getInitialState() /*object*/ {
@@ -117,7 +115,7 @@ var FixedDataTableColumnResizeHandle = createReactClass({
   render() /*object*/ {
     var style = {
       width: this.state.width,
-      height: this.props.height,
+      height: this.props.height
     };
     if (Locale.isRTL()) {
       style.right = this.props.leftOffset;
@@ -128,13 +126,15 @@ var FixedDataTableColumnResizeHandle = createReactClass({
       <div
         className={cx({
           'fixedDataTableColumnResizerLineLayout/main': true,
-          'fixedDataTableColumnResizerLineLayout/hiddenElem': !this.props.visible,
-          'public/fixedDataTableColumnResizerLine/main': true,
+          'fixedDataTableColumnResizerLineLayout/hiddenElem': !this.props
+            .visible,
+          'public/fixedDataTableColumnResizerLine/main': true
         })}
-        style={style}>
+        style={style}
+      >
         <div
           className={cx('fixedDataTableColumnResizerLineLayout/mouseArea')}
-          style={{height: this.props.height}}
+          style={{ height: this.props.height }}
         />
       </div>
     );
@@ -145,8 +145,11 @@ var FixedDataTableColumnResizeHandle = createReactClass({
       deltaX = -deltaX;
     }
     var newWidth = this.state.cursorDelta + deltaX;
-    var newColumnWidth =
-      clamp(newWidth, this.props.minWidth, this.props.maxWidth);
+    var newColumnWidth = clamp(
+      newWidth,
+      this.props.minWidth,
+      this.props.maxWidth
+    );
 
     // Please note cursor delta is the different between the currently width
     // and the new width.
@@ -158,11 +161,8 @@ var FixedDataTableColumnResizeHandle = createReactClass({
 
   _onColumnResizeEnd() {
     this._mouseMoveTracker.releaseMouseMoves();
-    this.props.onColumnResizeEnd(
-      this.state.width,
-      this.props.columnKey
-    );
-  },
+    this.props.onColumnResizeEnd(this.state.width, this.props.columnKey);
+  }
 });
 
 module.exports = FixedDataTableColumnResizeHandle;

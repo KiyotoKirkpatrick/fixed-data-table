@@ -23,6 +23,7 @@ var translateDOMPositionXY = require('translateDOMPositionXY');
 var PropTypes = require('prop-types');
 
 var FixedDataTableBufferedRows = createReactClass({
+  displayName: 'FixedDataTableBufferedRows',
   propTypes: {
     isScrolling: PropTypes.bool,
     defaultRowHeight: PropTypes.number.isRequired,

@@ -28,9 +28,8 @@ var PropTypes = require('prop-types');
  * only <FixedDataTable /> should use the component internally.
  */
 var FixedDataTableRowImpl = createReactClass({
-
+  displayName: 'FixedDataTableRowImpl',
   propTypes: {
-
     isScrolling: PropTypes.bool,
 
     /**
@@ -84,25 +83,25 @@ var FixedDataTableRowImpl = createReactClass({
      * @param number|string columnKey
      * @param object event
      */
-    onColumnResize: PropTypes.func,
+    onColumnResize: PropTypes.func
   },
 
   render() /*object*/ {
     var style = {
       width: this.props.width,
-      height: this.props.height,
+      height: this.props.height
     };
 
     var className = cx({
       'fixedDataTableRowLayout/main': true,
       'public/fixedDataTableRow/main': true,
-      'public/fixedDataTableRow/highlighted': (this.props.index % 2 === 1),
-      'public/fixedDataTableRow/odd': (this.props.index % 2 === 1),
-      'public/fixedDataTableRow/even': (this.props.index % 2 === 0),
+      'public/fixedDataTableRow/highlighted': this.props.index % 2 === 1,
+      'public/fixedDataTableRow/odd': this.props.index % 2 === 1,
+      'public/fixedDataTableRow/even': this.props.index % 2 === 0
     });
 
     var fixedColumnsWidth = this._getColumnsWidth(this.props.fixedColumns);
-    var fixedColumns =
+    var fixedColumns = (
       <FixedDataTableCellGroup
         key="fixed_cells"
         isScrolling={this.props.isScrolling}
@@ -114,9 +113,10 @@ var FixedDataTableRowImpl = createReactClass({
         onColumnResize={this.props.onColumnResize}
         rowHeight={this.props.height}
         rowIndex={this.props.index}
-      />;
+      />
+    );
     var columnsShadow = this._renderColumnsShadow(fixedColumnsWidth);
-    var scrollableColumns =
+    var scrollableColumns = (
       <FixedDataTableCellGroup
         key="scrollable_cells"
         isScrolling={this.props.isScrolling}
@@ -129,7 +129,8 @@ var FixedDataTableRowImpl = createReactClass({
         onColumnResize={this.props.onColumnResize}
         rowHeight={this.props.height}
         rowIndex={this.props.index}
-      />;
+      />
+    );
 
     return (
       <div
@@ -139,7 +140,8 @@ var FixedDataTableRowImpl = createReactClass({
         onMouseDown={this.props.onMouseDown ? this._onMouseDown : null}
         onMouseEnter={this.props.onMouseEnter ? this._onMouseEnter : null}
         onMouseLeave={this.props.onMouseLeave ? this._onMouseLeave : null}
-        style={style}>
+        style={style}
+      >
         <div className={cx('fixedDataTableRowLayout/body')}>
           {fixedColumns}
           {scrollableColumns}
@@ -163,7 +165,7 @@ var FixedDataTableRowImpl = createReactClass({
         'fixedDataTableRowLayout/fixedColumnsDivider': true,
         'fixedDataTableRowLayout/columnsShadow': this.props.scrollLeft > 0,
         'public/fixedDataTableRow/fixedColumnsDivider': true,
-        'public/fixedDataTableRow/columnsShadow': this.props.scrollLeft > 0,
+        'public/fixedDataTableRow/columnsShadow': this.props.scrollLeft > 0
       });
       var style = {
         left: left,
@@ -191,13 +193,12 @@ var FixedDataTableRowImpl = createReactClass({
 
   _onMouseLeave(/*object*/ event) {
     this.props.onMouseLeave(event, this.props.index);
-  },
+  }
 });
 
 var FixedDataTableRow = createReactClass({
-
+  displayName: 'FixedDataTableRow',
   propTypes: {
-
     isScrolling: PropTypes.bool,
 
     /**
@@ -219,21 +220,19 @@ var FixedDataTableRow = createReactClass({
     /**
      * Width of the row.
      */
-    width: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired
   },
 
   render() /*object*/ {
     var style = {
       width: this.props.width,
       height: this.props.height,
-      zIndex: (this.props.zIndex ? this.props.zIndex : 0),
+      zIndex: this.props.zIndex ? this.props.zIndex : 0
     };
     translateDOMPositionXY(style, 0, this.props.offsetTop);
 
     return (
-      <div
-        style={style}
-        className={cx('fixedDataTableRowLayout/rowWrapper')}>
+      <div style={style} className={cx('fixedDataTableRowLayout/rowWrapper')}>
         <FixedDataTableRowImpl
           {...this.props}
           offsetTop={undefined}
@@ -241,8 +240,7 @@ var FixedDataTableRow = createReactClass({
         />
       </div>
     );
-  },
+  }
 });
-
 
 module.exports = FixedDataTableRow;

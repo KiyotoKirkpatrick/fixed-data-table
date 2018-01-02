@@ -38,6 +38,7 @@ var KEYBOARD_SCROLL_AMOUNT = 40;
 var _lastScrolledScrollbar = null;
 
 var Scrollbar = createReactClass({
+  displayName: 'Scrollbar',
   mixins: [ReactComponentWithPureRenderMixin],
 
   propTypes: {

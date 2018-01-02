@@ -88,6 +88,7 @@ var CELL = 'cell';
  *   vertically or horizontally.
  */
 var FixedDataTable = createReactClass({
+  displayName: 'FixedDataTable',
   propTypes: {
     /**
      * Pixel width of table. If all columns do not fit,
@@ -775,15 +776,16 @@ var FixedDataTable = createReactClass({
 
     var firstRowIndex = (oldState && oldState.firstRowIndex) || 0;
     var firstRowOffset = (oldState && oldState.firstRowOffset) || 0;
-    var scrollX, scrollY;
-    if (oldState && props.overflowX !== 'hidden') {
-      scrollX = oldState.scrollX;
-    } else {
+    var scrollY = oldState ? oldState.scrollY : 0;
+    var scrollX = oldState ? oldState.scrollX : 0;
+
+    var lastScrollLeft = oldState ? oldState.scrollLeft : 0;
+    if (props.scrollLeft !== undefined && props.scrollLeft !== lastScrollLeft) {
       scrollX = props.scrollLeft;
     }
-    if (oldState && props.overflowY !== 'hidden') {
-      scrollY = oldState.scrollY;
-    } else {
+
+    var lastScrollTop = oldState ? oldState.scrollTop : undefined;
+    if (props.scrollTop != null && props.scrollTop !== lastScrollTop) {
       scrollState = this._scrollHelper.scrollTo(props.scrollTop);
       firstRowIndex = scrollState.index;
       firstRowOffset = scrollState.offset;
@@ -1040,6 +1042,7 @@ var FixedDataTable = createReactClass({
       if (!this._isScrolling) {
         this._didScrollStart();
       }
+      var onHorizontalScroll = this.props.onHorizontalScroll;
       if (onHorizontalScroll ? onHorizontalScroll(scrollPos) : true) {
         this.setState({
           scrollX: scrollPos

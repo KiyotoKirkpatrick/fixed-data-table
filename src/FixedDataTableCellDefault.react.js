@@ -34,7 +34,7 @@ var PropTypes = require('prop-types');
  *         height={height}
  *         className="my-class">
  *         Cell number: <span>{rowIndex}</span>
-*        </Cell>
+ *        </Cell>
  *     )}
  *     width={100}
  *   />
@@ -42,8 +42,8 @@ var PropTypes = require('prop-types');
  * ```
  */
 var FixedDataTableCellDefault = createReactClass({
+  displayName: 'FixedDataTableCellDefault',
   propTypes: {
-
     /**
      * Outer height of the cell.
      */
@@ -58,10 +58,7 @@ var FixedDataTableCellDefault = createReactClass({
      * Optional prop that if specified on the `Column` will be passed to the
      * cell. It can be used to uniquely identify which column is the cell is in.
      */
-    columnKey: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
+    columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   },
 
   render() {
@@ -79,7 +76,7 @@ var FixedDataTableCellDefault = createReactClass({
     var innerStyle = {
       height,
       width,
-      ...style,
+      ...style
     };
 
     return (
@@ -88,19 +85,22 @@ var FixedDataTableCellDefault = createReactClass({
         className={joinClasses(
           cx('fixedDataTableCellLayout/wrap1'),
           cx('public/fixedDataTableCell/wrap1'),
-          className,
+          className
         )}
-        style={innerStyle}>
+        style={innerStyle}
+      >
         <div
           className={joinClasses(
             cx('fixedDataTableCellLayout/wrap2'),
-            cx('public/fixedDataTableCell/wrap2'),
-          )}>
+            cx('public/fixedDataTableCell/wrap2')
+          )}
+        >
           <div
             className={joinClasses(
               cx('fixedDataTableCellLayout/wrap3'),
-              cx('public/fixedDataTableCell/wrap3'),
-            )}>
+              cx('public/fixedDataTableCell/wrap3')
+            )}
+          >
             <div className={cx('public/fixedDataTableCell/cellContent')}>
               {children}
             </div>
@@ -108,7 +108,7 @@ var FixedDataTableCellDefault = createReactClass({
         </div>
       </div>
     );
-  },
+  }
 });
 
 module.exports = FixedDataTableCellDefault;

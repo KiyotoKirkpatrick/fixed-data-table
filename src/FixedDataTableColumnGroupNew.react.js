@@ -19,8 +19,9 @@ var PropTypes = require('prop-types');
  * Component that defines the attributes of a table column group.
  */
 var FixedDataTableColumnGroup = createReactClass({
+  displayName: 'FixedDataTableColumnGroup',
   statics: {
-    __TableColumnGroup__: true,
+    __TableColumnGroup__: true
   },
 
   propTypes: {
@@ -53,16 +54,12 @@ var FixedDataTableColumnGroup = createReactClass({
      * You can also pass in a function that returns a react elemnt, with the
      * props object above passed in as the first parameter.
      */
-    header: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
-
+    header: PropTypes.oneOfType([PropTypes.node, PropTypes.func])
   },
 
   getDefaultProps() /*object*/ {
     return {
-      fixed: false,
+      fixed: false
     };
   },
 
@@ -73,7 +70,7 @@ var FixedDataTableColumnGroup = createReactClass({
       );
     }
     return null;
-  },
+  }
 });
 
 module.exports = FixedDataTableColumnGroup;

@@ -25,14 +25,13 @@ var PropTypes = require('prop-types');
 var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
 
 var FixedDataTableCellGroupImpl = createReactClass({
-
+  displayName: 'FixedDataTableCellGroupImpl',
   /**
    * PropTypes are disabled in this component, because having them on slows
    * down the FixedDataTable hugely in DEV mode. You can enable them back for
    * development, but please don't commit this component with enabled propTypes.
    */
   propTypes_DISABLED_FOR_PERFORMANCE: {
-
     /**
      * Array of <FixedDataTableColumn />.
      */
@@ -50,7 +49,7 @@ var FixedDataTableCellGroupImpl = createReactClass({
 
     width: PropTypes.number.isRequired,
 
-    zIndex: PropTypes.number.isRequired,
+    zIndex: PropTypes.number.isRequired
   },
 
   render() /*object*/ {
@@ -61,16 +60,18 @@ var FixedDataTableCellGroupImpl = createReactClass({
     var currentPosition = 0;
     for (var i = 0, j = columns.length; i < j; i++) {
       var columnProps = columns[i].props;
-      if (!columnProps.allowCellsRecycling || (
-            currentPosition - props.left <= props.width &&
-            currentPosition - props.left + columnProps.width >= 0)) {
+      if (
+        !columnProps.allowCellsRecycling ||
+        (currentPosition - props.left <= props.width &&
+          currentPosition - props.left + columnProps.width >= 0)
+      ) {
         var key = 'cell_' + i;
         cells[i] = this._renderCell(
           props.rowIndex,
           props.rowHeight,
           columnProps,
           currentPosition,
-          key,
+          key
         );
       }
       currentPosition += columnProps.width;
@@ -82,14 +83,15 @@ var FixedDataTableCellGroupImpl = createReactClass({
       height: props.height,
       position: 'absolute',
       width: contentWidth,
-      zIndex: props.zIndex,
+      zIndex: props.zIndex
     };
     translateDOMPositionXY(style, -1 * DIR_SIGN * props.left, 0);
 
     return (
       <div
         className={cx('fixedDataTableCellGroupLayout/cellGroup')}
-        style={style}>
+        style={style}
+      >
         {cells}
       </div>
     );
@@ -102,9 +104,7 @@ var FixedDataTableCellGroupImpl = createReactClass({
     /*number*/ left,
     /*string*/ key
   ) /*object*/ {
-
-    var cellIsResizable = columnProps.isResizable &&
-      this.props.onColumnResize;
+    var cellIsResizable = columnProps.isResizable && this.props.onColumnResize;
     var onColumnResize = cellIsResizable ? this.props.onColumnResize : null;
 
     var className = columnProps.cellClassName;
@@ -134,11 +134,11 @@ var FixedDataTableCellGroupImpl = createReactClass({
       width += columns[i].props.width;
     }
     return width;
-  },
+  }
 });
 
 var FixedDataTableCellGroup = createReactClass({
-
+  displayName: 'FixedDataTableCellGroup',
   /**
    * PropTypes are disabled in this component, because having them on slows
    * down the FixedDataTable hugely in DEV mode. You can enable them back for
@@ -158,7 +158,7 @@ var FixedDataTableCellGroup = createReactClass({
      * Z-index on which the row will be displayed. Used e.g. for keeping
      * header and footer in front of other rows.
      */
-    zIndex: PropTypes.number.isRequired,
+    zIndex: PropTypes.number.isRequired
   },
 
   shouldComponentUpdate(/*object*/ nextProps) /*boolean*/ {
@@ -171,15 +171,15 @@ var FixedDataTableCellGroup = createReactClass({
 
   getDefaultProps() /*object*/ {
     return {
-      offsetLeft: 0,
+      offsetLeft: 0
     };
   },
 
   render() /*object*/ {
-    var {offsetLeft, ...props} = this.props;
+    var { offsetLeft, ...props } = this.props;
 
     var style = {
-      height: props.height,
+      height: props.height
     };
 
     if (DIR_SIGN === 1) {
@@ -193,7 +193,8 @@ var FixedDataTableCellGroup = createReactClass({
     return (
       <div
         style={style}
-        className={cx('fixedDataTableCellGroupLayout/cellGroupWrapper')}>
+        className={cx('fixedDataTableCellGroupLayout/cellGroupWrapper')}
+      >
         <FixedDataTableCellGroupImpl
           {...props}
           onColumnResize={onColumnResize}
@@ -210,17 +211,17 @@ var FixedDataTableCellGroup = createReactClass({
     /*string|number*/ columnKey,
     /*object*/ event
   ) {
-    this.props.onColumnResize && this.props.onColumnResize(
-      this.props.offsetLeft,
-      left - this.props.left + width,
-      width,
-      minWidth,
-      maxWidth,
-      columnKey,
-      event
-    );
-  },
+    this.props.onColumnResize &&
+      this.props.onColumnResize(
+        this.props.offsetLeft,
+        left - this.props.left + width,
+        width,
+        minWidth,
+        maxWidth,
+        columnKey,
+        event
+      );
+  }
 });
-
 
 module.exports = FixedDataTableCellGroup;

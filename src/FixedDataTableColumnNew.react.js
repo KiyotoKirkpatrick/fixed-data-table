@@ -19,6 +19,7 @@ var PropTypes = require('prop-types');
  * Component that defines the attributes of table column.
  */
 var FixedDataTableColumn = createReactClass({
+  displayName: 'FixedDataTableColumn',
   statics: {
     __TableColumn__: true
   },
@@ -55,10 +56,7 @@ var FixedDataTableColumn = createReactClass({
      * If you pass in a function, you will receive the same props object as the
      * first argument.
      */
-    header: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
+    header: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
      * This is the body cell that will be cloned for this column.
@@ -82,10 +80,7 @@ var FixedDataTableColumn = createReactClass({
      * If you pass in a function, you will receive the same props object as the
      * first argument.
      */
-    cell: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
+    cell: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
      * This is the footer cell for this column.
@@ -108,20 +103,14 @@ var FixedDataTableColumn = createReactClass({
      * If you pass in a function, you will receive the same props object as the
      * first argument.
      */
-    footer: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.func,
-    ]),
+    footer: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 
     /**
      * This is used to uniquely identify the column, and is not required unless
      * you a resizing columns. This will be the key given in the
      * `onColumnResizeEndCallback` on the Table.
      */
-    columnKey: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
+    columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * The pixel width of the column.
@@ -167,24 +156,22 @@ var FixedDataTableColumn = createReactClass({
      * Setting the property to false will keep previous behaviour and keep
      * cell rendered if the row it belongs to is visible.
      */
-    allowCellsRecycling: PropTypes.bool,
+    allowCellsRecycling: PropTypes.bool
   },
 
   getDefaultProps() /*object*/ {
     return {
       allowCellsRecycling: false,
-      fixed: false,
+      fixed: false
     };
   },
 
   render() {
     if (__DEV__) {
-      throw new Error(
-        'Component <FixedDataTableColumn /> should never render'
-      );
+      throw new Error('Component <FixedDataTableColumn /> should never render');
     }
     return null;
-  },
+  }
 });
 
 module.exports = FixedDataTableColumn;

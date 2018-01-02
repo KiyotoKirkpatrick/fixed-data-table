@@ -23,10 +23,11 @@ var PropTypes = require('prop-types');
 
 var DEFAULT_PROPS = {
   align: 'left',
-  highlighted: false,
+  highlighted: false
 };
 
 var FixedDataTableCell = createReactClass({
+  displayName: 'FixedDataTableCell',
 
   /**
    * PropTypes are disabled in this component, because having them on slows
@@ -46,13 +47,10 @@ var FixedDataTableCell = createReactClass({
     cell: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.element,
-      PropTypes.func,
+      PropTypes.func
     ]),
 
-    columnKey: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
+    columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * The row index that will be passed to `cellRenderer` to render.
@@ -76,14 +74,11 @@ var FixedDataTableCell = createReactClass({
     /**
      * The left offset in pixels of the cell.
      */
-    left: PropTypes.number,
+    left: PropTypes.number
   },
 
   shouldComponentUpdate(nextProps) {
-    return (
-      !nextProps.isScrolling ||
-      this.props.rowIndex !== nextProps.rowIndex
-    );
+    return !nextProps.isScrolling || this.props.rowIndex !== nextProps.rowIndex;
   },
 
   getDefaultProps() /*object*/ {
@@ -91,12 +86,11 @@ var FixedDataTableCell = createReactClass({
   },
 
   render() /*object*/ {
-
-    var {height, width, columnKey, ...props} = this.props;
+    var { height, width, columnKey, ...props } = this.props;
 
     var style = {
       height,
-      width,
+      width
     };
 
     if (DIR_SIGN === 1) {
@@ -113,9 +107,9 @@ var FixedDataTableCell = createReactClass({
         'fixedDataTableCellLayout/alignCenter': props.align === 'center',
         'public/fixedDataTableCell/alignRight': props.align === 'right',
         'public/fixedDataTableCell/highlighted': props.highlighted,
-        'public/fixedDataTableCell/main': true,
+        'public/fixedDataTableCell/main': true
       }),
-      props.className,
+      props.className
     );
 
     var columnResizerComponent;
@@ -127,11 +121,12 @@ var FixedDataTableCell = createReactClass({
         <div
           className={cx('fixedDataTableCellLayout/columnResizerContainer')}
           style={columnResizerStyle}
-          onMouseDown={this._onColumnResizerMouseDown}>
+          onMouseDown={this._onColumnResizerMouseDown}
+        >
           <div
             className={joinClasses(
               cx('fixedDataTableCellLayout/columnResizerKnob'),
-              cx('public/fixedDataTableCell/columnResizerKnob'),
+              cx('public/fixedDataTableCell/columnResizerKnob')
             )}
             style={columnResizerStyle}
           />
@@ -156,8 +151,7 @@ var FixedDataTableCell = createReactClass({
       content = props.cell(cellProps);
     } else {
       content = (
-        <FixedDataTableCellDefault
-          {...cellProps}>
+        <FixedDataTableCellDefault {...cellProps}>
           {props.cell}
         </FixedDataTableCellDefault>
       );
@@ -180,7 +174,7 @@ var FixedDataTableCell = createReactClass({
       this.props.columnKey,
       event
     );
-  },
+  }
 });
 
 module.exports = FixedDataTableCell;
