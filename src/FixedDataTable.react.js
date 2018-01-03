@@ -220,7 +220,19 @@ var FixedDataTable = createReactClass({
      * table estimates heights of some parts of the content.
      */
     onContentHeightChange: PropTypes.func,
-
+    /**
+     * Callback that is called when `width` change or column(s) have been added/removed
+     */
+    onMaxScrollXChange: PropTypes.func,
+    /**
+     * Callback that is called when `rowHeightGetter` returns a different height
+     * for a row than the `rowHeight` prop or rows have been added/removed
+     */
+    onMaxScrollYChange: PropTypes.func,
+    /**
+     * Callback that is called when first row index changes.
+     */
+    onFirstRowIndexChange: PropTypes.func,
     /**
      * Callback that is called when a row is clicked.
      */
@@ -378,9 +390,33 @@ var FixedDataTable = createReactClass({
     }
     this._contentHeight = contentHeight;
   },
+  _reportScrollState(prevState) {
+    const state = this.state;
+    const props = this.props;
+    const initialRender = prevState === undefined;
+    if (
+      (initialRender || state.maxScrollX !== prevState.maxScrollX) &&
+      props.onMaxScrollXChange
+    ) {
+      props.onMaxScrollXChange(state.maxScrollX);
+    }
+    if (
+      (initialRender || state.maxScrollY !== prevState.maxScrollY) &&
+      props.onMaxScrollYChange
+    ) {
+      props.onMaxScrollYChange(state.maxScrollY);
+    }
+    if (
+      (initialRender || state.firstRowIndex !== prevState.firstRowIndex) &&
+      props.onFirstRowIndexChange
+    ) {
+      props.onFirstRowIndexChange(state.firstRowIndex);
+    }
+  },
 
   componentDidMount() {
     this._reportContentHeight();
+    this._reportScrollState();
   },
 
   componentWillReceiveProps(/*object*/ nextProps) {
@@ -417,8 +453,9 @@ var FixedDataTable = createReactClass({
     this.setState(this._calculateState(nextProps, this.state));
   },
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     this._reportContentHeight();
+    this._reportScrollState(prevState);
   },
 
   render() /*object*/ {
@@ -1044,21 +1081,12 @@ var FixedDataTable = createReactClass({
     if (Math.abs(deltaY) > Math.abs(deltaX) && props.overflowY !== 'hidden') {
       const scrollState = this._scrollHelper.scrollBy(Math.round(deltaY));
       const onVerticalScroll = props.onVerticalScroll;
-      const scrollContentHeight = scrollState.contentHeight;
-      const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
-      const firstRowIndex = scrollState.index;
       const firstRowOffset = scrollState.offset;
       const scrollY = scrollState.position;
-      if (
-        onVerticalScroll
-          ? onVerticalScroll({
-              firstRowIndex,
-              firstRowOffset,
-              scrollY,
-              maxScrollY
-            })
-          : true
-      ) {
+      if (onVerticalScroll ? onVerticalScroll(scrollY, firstRowOffset) : true) {
+        const scrollContentHeight = scrollState.contentHeight;
+        const firstRowIndex = scrollState.index;
+        const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
         this.setState({
           firstRowIndex,
           firstRowOffset,
@@ -1073,11 +1101,7 @@ var FixedDataTable = createReactClass({
       x = x < 0 ? 0 : x;
       x = x > maxScrollX ? maxScrollX : x;
       const onHorizontalScroll = props.onHorizontalScroll;
-      if (
-        onHorizontalScroll
-          ? onHorizontalScroll({ scrollX: x, maxScrollX })
-          : true
-      ) {
+      if (onHorizontalScroll ? onHorizontalScroll(x) : true) {
         this.setState({
           scrollX: x
         });
@@ -1095,11 +1119,7 @@ var FixedDataTable = createReactClass({
       }
       const onHorizontalScroll = this.props.onHorizontalScroll;
       const scrollX = Math.round(scrollPos);
-      if (
-        onHorizontalScroll
-          ? onHorizontalScroll({ scrollX, maxScrollX: state.maxScrollX })
-          : true
-      ) {
+      if (onHorizontalScroll ? onHorizontalScroll(scrollX) : true) {
         this.setState({
           scrollX
         });
@@ -1116,21 +1136,12 @@ var FixedDataTable = createReactClass({
       }
       const scrollState = this._scrollHelper.scrollTo(Math.round(scrollPos));
       const onVerticalScroll = this.props.onVerticalScroll;
-      const scrollContentHeight = scrollState.contentHeight;
-      const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
-      const firstRowIndex = scrollState.index;
       const firstRowOffset = scrollState.offset;
       const scrollY = scrollState.position;
-      if (
-        onVerticalScroll
-          ? onVerticalScroll({
-              firstRowIndex,
-              firstRowOffset,
-              scrollY,
-              maxScrollY
-            })
-          : true
-      ) {
+      if (onVerticalScroll ? onVerticalScroll(scrollY, firstRowOffset) : true) {
+        const scrollContentHeight = scrollState.contentHeight;
+        const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
+        const firstRowIndex = scrollState.index;
         this.setState({
           firstRowIndex,
           firstRowOffset,
