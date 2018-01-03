@@ -432,7 +432,9 @@ var FixedDataTable = createReactClass({
       maxScrollX,
       maxScrollY,
       footerHeight,
-      headerHeight
+      headerHeight,
+      ownerHeight,
+      groupHeaderHeight
     } = state;
     let groupHeader;
     if (state.useGroupHeader) {
@@ -445,7 +447,7 @@ var FixedDataTable = createReactClass({
             cx('public/fixedDataTable/header')
           )}
           width={width}
-          height={state.groupHeaderHeight}
+          height={groupHeaderHeight}
           index={0}
           zIndex={1}
           offsetTop={0}
@@ -463,7 +465,7 @@ var FixedDataTable = createReactClass({
     let scrollbarYHeight =
       height - scrollbarXHeight - 2 * BORDER_HEIGHT - footerHeight;
 
-    const headerOffsetTop = state.useGroupHeader ? state.groupHeaderHeight : 0;
+    const headerOffsetTop = state.useGroupHeader ? groupHeaderHeight : 0;
     var bodyOffsetTop = headerOffsetTop + headerHeight;
     scrollbarYHeight -= bodyOffsetTop;
     let bottomSectionOffset = 0;
@@ -584,9 +586,9 @@ var FixedDataTable = createReactClass({
     }
 
     if (
-      (state.ownerHeight != null &&
-        state.ownerHeight < height &&
-        state.scrollContentHeight + state.reservedHeight > state.ownerHeight) ||
+      (ownerHeight != null &&
+        ownerHeight < height &&
+        state.scrollContentHeight + state.reservedHeight > ownerHeight) ||
       scrollY < maxScrollY
     ) {
       bottomShadow = (
@@ -1037,31 +1039,45 @@ var FixedDataTable = createReactClass({
     if (!this._isScrolling) {
       this._didScrollStart();
     }
-    var state = this.state;
-    var props = this.props;
+    const state = this.state;
+    const props = this.props;
     if (Math.abs(deltaY) > Math.abs(deltaX) && props.overflowY !== 'hidden') {
-      var scrollState = this._scrollHelper.scrollBy(Math.round(deltaY));
-      var onVerticalScroll = props.onVerticalScroll;
-      if (onVerticalScroll ? onVerticalScroll(scrollState.position) : true) {
-        var maxScrollY = Math.max(
-          0,
-          scrollState.contentHeight - state.bodyHeight
-        );
+      const scrollState = this._scrollHelper.scrollBy(Math.round(deltaY));
+      const onVerticalScroll = props.onVerticalScroll;
+      const scrollContentHeight = scrollState.contentHeight;
+      const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
+      const firstRowIndex = scrollState.index;
+      const firstRowOffset = scrollState.offset;
+      const scrollY = scrollState.position;
+      if (
+        onVerticalScroll
+          ? onVerticalScroll({
+              firstRowIndex,
+              firstRowOffset,
+              scrollY,
+              maxScrollY
+            })
+          : true
+      ) {
         this.setState({
-          firstRowIndex: scrollState.index,
-          firstRowOffset: scrollState.offset,
-          scrollY: scrollState.position,
-          scrollContentHeight: scrollState.contentHeight,
-          maxScrollY: maxScrollY
+          firstRowIndex,
+          firstRowOffset,
+          scrollY,
+          maxScrollY,
+          scrollContentHeight
         });
       }
     } else if (deltaX && props.overflowX !== 'hidden') {
-      var x = state.scrollX;
+      let { scrollX: x, maxScrollX } = state;
       x += deltaX;
       x = x < 0 ? 0 : x;
-      x = x > state.maxScrollX ? state.maxScrollX : x;
-      var onHorizontalScroll = props.onHorizontalScroll;
-      if (onHorizontalScroll ? onHorizontalScroll(x) : true) {
+      x = x > maxScrollX ? maxScrollX : x;
+      const onHorizontalScroll = props.onHorizontalScroll;
+      if (
+        onHorizontalScroll
+          ? onHorizontalScroll({ scrollX: x, maxScrollX })
+          : true
+      ) {
         this.setState({
           scrollX: x
         });
@@ -1072,14 +1088,20 @@ var FixedDataTable = createReactClass({
   },
 
   _onHorizontalScroll(/*number*/ scrollPos) {
-    if (scrollPos !== this.state.scrollX) {
+    const state = this.state;
+    if (scrollPos !== state.scrollX) {
       if (!this._isScrolling) {
         this._didScrollStart();
       }
-      var onHorizontalScroll = this.props.onHorizontalScroll;
-      if (onHorizontalScroll ? onHorizontalScroll(scrollPos) : true) {
+      const onHorizontalScroll = this.props.onHorizontalScroll;
+      const scrollX = Math.round(scrollPos);
+      if (
+        onHorizontalScroll
+          ? onHorizontalScroll({ scrollX, maxScrollX: state.maxScrollX })
+          : true
+      ) {
         this.setState({
-          scrollX: scrollPos
+          scrollX
         });
         this._didScrollStop();
       }
@@ -1087,18 +1109,34 @@ var FixedDataTable = createReactClass({
   },
 
   _onVerticalScroll(/*number*/ scrollPos) {
-    if (scrollPos !== this.state.scrollY) {
+    const state = this.state;
+    if (scrollPos !== state.scrollY) {
       if (!this._isScrolling) {
         this._didScrollStart();
       }
-      var scrollState = this._scrollHelper.scrollTo(Math.round(scrollPos));
-      var onVerticalScroll = this.props.onVerticalScroll;
-      if (onVerticalScroll ? onVerticalScroll(scrollState.position) : true) {
+      const scrollState = this._scrollHelper.scrollTo(Math.round(scrollPos));
+      const onVerticalScroll = this.props.onVerticalScroll;
+      const scrollContentHeight = scrollState.contentHeight;
+      const maxScrollY = Math.max(0, scrollContentHeight - state.bodyHeight);
+      const firstRowIndex = scrollState.index;
+      const firstRowOffset = scrollState.offset;
+      const scrollY = scrollState.position;
+      if (
+        onVerticalScroll
+          ? onVerticalScroll({
+              firstRowIndex,
+              firstRowOffset,
+              scrollY,
+              maxScrollY
+            })
+          : true
+      ) {
         this.setState({
-          firstRowIndex: scrollState.index,
-          firstRowOffset: scrollState.offset,
-          scrollY: scrollState.position,
-          scrollContentHeight: scrollState.contentHeight
+          firstRowIndex,
+          firstRowOffset,
+          scrollY,
+          scrollContentHeight,
+          maxScrollY
         });
         this._didScrollStop();
       }
