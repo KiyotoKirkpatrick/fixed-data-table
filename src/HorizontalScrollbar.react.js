@@ -20,19 +20,18 @@ class HorizontalScrollbar extends PureComponent {
   };
 
   render() /*object*/ {
-    var props = this.props;
-    var size = props.size;
-    var outerContainerStyle = {
+    const { size, offset, ...rest } = this.props;
+    const outerContainerStyle = {
       height: SCROLL_BAR_SIZE,
       width: size
     };
-    var innerContainerStyle = {
+    const innerContainerStyle = {
       height: SCROLL_BAR_SIZE,
       position: 'absolute',
       overflow: 'hidden',
       width: size
     };
-    translateDOMPositionXY(innerContainerStyle, 0, props.offset);
+    translateDOMPositionXY(innerContainerStyle, 0, offset);
 
     return (
       <div
@@ -44,10 +43,10 @@ class HorizontalScrollbar extends PureComponent {
       >
         <div style={innerContainerStyle}>
           <Scrollbar
-            {...props}
+            {...rest}
             isOpaque={true}
             orientation="horizontal"
-            offset={undefined}
+            size={size}
           />
         </div>
       </div>
