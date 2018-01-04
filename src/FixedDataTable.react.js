@@ -19,19 +19,18 @@ var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMix
 var ReactWheelHandler = require('ReactWheelHandler');
 var ReactTouchHandler = require('ReactTouchHandler');
 var Scrollbar = require('Scrollbar.react');
+var HorizontalScrollbar = require('HorizontalScrollbar.react');
 var FixedDataTableBufferedRows = require('FixedDataTableBufferedRows.react');
 var FixedDataTableColumnResizeHandle = require('FixedDataTableColumnResizeHandle.react');
 var FixedDataTableRow = require('FixedDataTableRow.react');
 var FixedDataTableScrollHelper = require('FixedDataTableScrollHelper');
 var FixedDataTableWidthHelper = require('FixedDataTableWidthHelper');
-
 var cx = require('cx');
 var debounceCore = require('debounceCore');
 var emptyFunction = require('emptyFunction');
 var invariant = require('invariant');
 var joinClasses = require('joinClasses');
 var shallowEqual = require('shallowEqual');
-var translateDOMPositionXY = require('translateDOMPositionXY');
 
 var PropTypes = require('prop-types');
 var ReactChildren = React.Children;
@@ -257,6 +256,10 @@ var FixedDataTable = createReactClass({
      * Callback that is called when a mouse-leave event happens on a row.
      */
     onRowMouseLeave: PropTypes.func,
+    /**
+     * Callback that is called when context menu event happens on a row
+     */
+    onRowContextMenu: PropTypes.func,
 
     /**
      * Callback that is called when resizer has been released
@@ -678,29 +681,30 @@ var FixedDataTable = createReactClass({
   },
   _renderRows(/*number*/ offsetTop) /*object*/ {
     var state = this.state;
-
+    var props = this.props;
     return (
       <FixedDataTableBufferedRows
         isScrolling={this._isScrolling}
-        defaultRowHeight={state.rowHeight}
+        defaultRowHeight={props.rowHeight}
         firstRowIndex={state.firstRowIndex}
         firstRowOffset={state.firstRowOffset}
         fixedColumns={state.bodyFixedColumns}
         height={state.bodyHeight}
         offsetTop={offsetTop}
-        onRowClick={state.onRowClick}
-        onRowDoubleClick={state.onRowDoubleClick}
-        onRowMouseDown={state.onRowMouseDown}
-        onRowMouseEnter={state.onRowMouseEnter}
-        onRowMouseLeave={state.onRowMouseLeave}
-        rowClassNameGetter={state.rowClassNameGetter}
-        rowsCount={state.rowsCount}
+        onRowClick={props.onRowClick}
+        onRowDoubleClick={props.onRowDoubleClick}
+        onRowMouseDown={props.onRowMouseDown}
+        onRowMouseEnter={props.onRowMouseEnter}
+        onRowMouseLeave={props.onRowMouseLeave}
+        onRowContextMenu={props.onRowContextMenu}
+        rowClassNameGetter={props.rowClassNameGetter}
+        rowsCount={props.rowsCount}
         rowGetter={state.rowGetter}
-        rowHeightGetter={state.rowHeightGetter}
+        rowHeightGetter={props.rowHeightGetter}
         scrollLeft={state.scrollX}
         scrollableColumns={state.bodyScrollableColumns}
         showLastRowBorder={true}
-        width={state.width}
+        width={props.width}
         rowPositionGetter={this._scrollHelper.getRowPosition}
       />
     );
@@ -1174,52 +1178,6 @@ var FixedDataTable = createReactClass({
         this.props.onScrollEnd(this.state.scrollX, this.state.scrollY);
       }
     }
-  }
-});
-
-var HorizontalScrollbar = createReactClass({
-  mixins: [ReactComponentWithPureRenderMixin],
-  propTypes: {
-    contentSize: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
-    onScroll: PropTypes.func.isRequired,
-    position: PropTypes.number.isRequired,
-    size: PropTypes.number.isRequired
-  },
-
-  render() /*object*/ {
-    var props = this.props;
-    var size = props.size;
-    var outerContainerStyle = {
-      height: SCROLL_BAR_SIZE,
-      width: size
-    };
-    var innerContainerStyle = {
-      height: SCROLL_BAR_SIZE,
-      position: 'absolute',
-      overflow: 'hidden',
-      width: size
-    };
-    translateDOMPositionXY(innerContainerStyle, 0, props.offset);
-
-    return (
-      <div
-        className={joinClasses(
-          cx('fixedDataTableLayout/horizontalScrollbar'),
-          cx('public/fixedDataTable/horizontalScrollbar')
-        )}
-        style={outerContainerStyle}
-      >
-        <div style={innerContainerStyle}>
-          <Scrollbar
-            {...props}
-            isOpaque={true}
-            orientation="horizontal"
-            offset={undefined}
-          />
-        </div>
-      </div>
-    );
   }
 });
 

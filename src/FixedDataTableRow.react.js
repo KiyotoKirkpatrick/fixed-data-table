@@ -72,6 +72,10 @@ var FixedDataTableRowImpl = createReactClass({
      * Fire when a row is double clicked.
      */
     onDoubleClick: PropTypes.func,
+    /**
+     * Fire when a row is double clicked.
+     */
+    onContextMenu: PropTypes.func,
 
     /**
      * Callback for when resizer knob (in FixedDataTableCell) is clicked
@@ -87,17 +91,20 @@ var FixedDataTableRowImpl = createReactClass({
   },
 
   render() /*object*/ {
-    var props = this.props;
-    var height = props.height;
-    var width = props.width;
-    var style = {
-      width: width,
-      height: height
-    };
-    var index = props.index;
-    var isScrolling = props.isScrolling;
-    var onColumnResize = props.onColumnResize;
-    var className = cx({
+    const props = this.props;
+    const {
+      height,
+      width,
+      index,
+      isScrolling,
+      onColumnResize,
+      fixedColumns,
+      scrollableColumns,
+      className,
+      scrollLeft
+    } = props;
+
+    var defaultClassName = cx({
       'fixedDataTableRowLayout/main': true,
       'public/fixedDataTableRow/main': true,
       'public/fixedDataTableRow/highlighted': index % 2 === 1,
@@ -105,8 +112,8 @@ var FixedDataTableRowImpl = createReactClass({
       'public/fixedDataTableRow/even': index % 2 === 0
     });
 
-    var fixedColumnsWidth = this._getColumnsWidth(props.fixedColumns);
-    var fixedColumns = (
+    var fixedColumnsWidth = this._getColumnsWidth(fixedColumns);
+    var fixedColumnGroup = (
       <FixedDataTableCellGroup
         key="fixed_cells"
         isScrolling={isScrolling}
@@ -114,23 +121,23 @@ var FixedDataTableRowImpl = createReactClass({
         left={0}
         width={fixedColumnsWidth}
         zIndex={2}
-        columns={props.fixedColumns}
+        columns={fixedColumns}
         onColumnResize={onColumnResize}
         rowHeight={height}
         rowIndex={index}
       />
     );
     var columnsShadow = this._renderColumnsShadow(fixedColumnsWidth);
-    var scrollableColumns = (
+    var scrollableColumnGroup = (
       <FixedDataTableCellGroup
         key="scrollable_cells"
         isScrolling={isScrolling}
         height={height}
-        left={props.scrollLeft}
+        left={scrollLeft}
         offsetLeft={fixedColumnsWidth}
         width={width - fixedColumnsWidth}
         zIndex={0}
-        columns={props.scrollableColumns}
+        columns={scrollableColumns}
         onColumnResize={onColumnResize}
         rowHeight={height}
         rowIndex={index}
@@ -139,17 +146,18 @@ var FixedDataTableRowImpl = createReactClass({
 
     return (
       <div
-        className={joinClasses(className, props.className)}
+        className={joinClasses(defaultClassName, className)}
         onClick={props.onClick ? this._onClick : null}
         onDoubleClick={props.onDoubleClick ? this._onDoubleClick : null}
         onMouseDown={props.onMouseDown ? this._onMouseDown : null}
         onMouseEnter={props.onMouseEnter ? this._onMouseEnter : null}
         onMouseLeave={props.onMouseLeave ? this._onMouseLeave : null}
-        style={style}
+        onContextMenu={props.onContextMenu ? this._onContextMenu : null}
+        style={{ width, height }}
       >
         <div className={cx('fixedDataTableRowLayout/body')}>
-          {fixedColumns}
-          {scrollableColumns}
+          {fixedColumnGroup}
+          {scrollableColumnGroup}
           {columnsShadow}
         </div>
       </div>
@@ -200,6 +208,9 @@ var FixedDataTableRowImpl = createReactClass({
 
   _onMouseLeave(/*object*/ event) {
     this.props.onMouseLeave(event, this.props.index);
+  },
+  _onContextMenu(/*object*/ event) {
+    this.props.onContextMenu(event, this.props.index);
   }
 });
 
