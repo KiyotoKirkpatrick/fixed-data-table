@@ -27,6 +27,15 @@ var PropTypes = require('prop-types');
  * This component should not be used directly by developer. Instead,
  * only <FixedDataTable /> should use the component internally.
  */
+const ODD_ROW_CLASS_NAMES =
+  'fixedDataTableRowLayout_main public_fixedDataTableRow_main public_fixedDataTableRow_highlighted public_fixedDataTableRow_odd ';
+const EVEN_ROW_CLASS_NAMES =
+  'fixedDataTableRowLayout_main public_fixedDataTableRow_main public_fixedDataTableRow_even ';
+const HAS_SHADOW_CLASS =
+  'fixedDataTableRowLayout_fixedColumnsDivider fixedDataTableRowLayout_columnsShadow public_fixedDataTableRow_fixedColumnsDivider public_fixedDataTableRow_columnsShadow';
+const NO_SHADOW_CLASS =
+  'fixedDataTableRowLayout_fixedColumnsDivider public_fixedDataTableRow_fixedColumnsDivider';
+
 var FixedDataTableRowImpl = createReactClass({
   displayName: 'FixedDataTableRowImpl',
   propTypes: {
@@ -103,14 +112,8 @@ var FixedDataTableRowImpl = createReactClass({
       className,
       scrollLeft
     } = props;
-
-    var defaultClassName = cx({
-      'fixedDataTableRowLayout/main': true,
-      'public/fixedDataTableRow/main': true,
-      'public/fixedDataTableRow/highlighted': index % 2 === 1,
-      'public/fixedDataTableRow/odd': index % 2 === 1,
-      'public/fixedDataTableRow/even': index % 2 === 0
-    });
+    var defaultClassName =
+      index % 2 === 1 ? ODD_ROW_CLASS_NAMES : EVEN_ROW_CLASS_NAMES;
 
     var fixedColumnsWidth = this._getColumnsWidth(fixedColumns);
     var fixedColumnGroup = (
@@ -147,12 +150,12 @@ var FixedDataTableRowImpl = createReactClass({
     return (
       <div
         className={joinClasses(defaultClassName, className)}
-        onClick={props.onClick ? this._onClick : null}
-        onDoubleClick={props.onDoubleClick ? this._onDoubleClick : null}
-        onMouseDown={props.onMouseDown ? this._onMouseDown : null}
-        onMouseEnter={props.onMouseEnter ? this._onMouseEnter : null}
-        onMouseLeave={props.onMouseLeave ? this._onMouseLeave : null}
-        onContextMenu={props.onContextMenu ? this._onContextMenu : null}
+        onClick={this._onClick}
+        onDoubleClick={this._onDoubleClick}
+        onMouseDown={this._onMouseDown}
+        onMouseEnter={this._onMouseEnter}
+        onMouseLeave={this._onMouseLeave}
+        onContextMenu={this._onContextMenu}
         style={{ width, height }}
       >
         <div className={cx('fixedDataTableRowLayout/body')}>
@@ -176,12 +179,7 @@ var FixedDataTableRowImpl = createReactClass({
     if (left > 0) {
       var props = this.props;
       var scrollLeft = props.scrollLeft;
-      var className = cx({
-        'fixedDataTableRowLayout/fixedColumnsDivider': true,
-        'fixedDataTableRowLayout/columnsShadow': scrollLeft > 0,
-        'public/fixedDataTableRow/fixedColumnsDivider': true,
-        'public/fixedDataTableRow/columnsShadow': scrollLeft > 0
-      });
+      var className = scrollLeft > 0 ? HAS_SHADOW_CLASS : NO_SHADOW_CLASS;
       var style = {
         left: left,
         height: props.height
@@ -191,26 +189,44 @@ var FixedDataTableRowImpl = createReactClass({
   },
 
   _onClick(/*object*/ event) {
-    this.props.onClick(event, this.props.index);
+    const { onClick, index } = this.props;
+    if (onClick) {
+      onClick(event, index);
+    }
   },
 
   _onDoubleClick(/*object*/ event) {
-    this.props.onDoubleClick(event, this.props.index);
+    const { onDoubleClick, index } = this.props;
+    if (onDoubleClick) {
+      onDoubleClick(event, index);
+    }
   },
 
   _onMouseDown(/*object*/ event) {
-    this.props.onMouseDown(event, this.props.index);
+    const { onMouseDown, index } = this.props;
+    if (onMouseDown) {
+      onMouseDown(event, index);
+    }
   },
 
   _onMouseEnter(/*object*/ event) {
-    this.props.onMouseEnter(event, this.props.index);
+    const { onMouseEnter, index } = this.props;
+    if (onMouseEnter) {
+      onMouseEnter(event, index);
+    }
   },
 
   _onMouseLeave(/*object*/ event) {
-    this.props.onMouseLeave(event, this.props.index);
+    const { onMouseLeave, index } = this.props;
+    if (onMouseLeave) {
+      onMouseLeave(event, index);
+    }
   },
   _onContextMenu(/*object*/ event) {
-    this.props.onContextMenu(event, this.props.index);
+    const { onContextMenu, index } = this.props;
+    if (onContextMenu) {
+      onContextMenu(event, index);
+    }
   }
 });
 
