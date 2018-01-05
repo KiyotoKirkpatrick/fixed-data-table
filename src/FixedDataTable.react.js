@@ -31,7 +31,7 @@ var emptyFunction = require('emptyFunction');
 var invariant = require('invariant');
 var joinClasses = require('joinClasses');
 var shallowEqual = require('shallowEqual');
-
+var memoize = require('memoize');
 var PropTypes = require('prop-types');
 var ReactChildren = React.Children;
 
@@ -88,6 +88,10 @@ var CELL = 'cell';
  *   vertically or horizontally.
  */
 const SCROLL_BAR_SIZE = Scrollbar.SIZE;
+const memoizedGetTotalWidth = memoize.defaultMemoize(
+  FixedDataTableWidthHelper.getTotalWidth
+);
+
 var FixedDataTable = createReactClass({
   displayName: 'FixedDataTable',
   propTypes: {
@@ -837,18 +841,21 @@ var FixedDataTable = createReactClass({
       'You must set either a height or a maxHeight'
     );
 
-    var children = [];
-    ReactChildren.forEach(props.children, (child, index) => {
-      if (child == null) {
-        return;
-      }
-      invariant(
-        child.type.__TableColumnGroup__ || child.type.__TableColumn__,
-        'child type should be <FixedDataTableColumn /> or ' +
-          '<FixedDataTableColumnGroup />'
-      );
-      children.push(child);
-    });
+    var children = props.children;
+    if (!oldState || props.children !== oldState.children) {
+      children = [];
+      ReactChildren.forEach(props.children, (child, index) => {
+        if (child == null) {
+          return;
+        }
+        invariant(
+          child.type.__TableColumnGroup__ || child.type.__TableColumn__,
+          'child type should be <FixedDataTableColumn /> or ' +
+            '<FixedDataTableColumnGroup />'
+        );
+        children.push(child);
+      });
+    }
 
     var useGroupHeader = false;
     if (children.length && children[0].type.__TableColumnGroup__) {
@@ -983,7 +990,7 @@ var FixedDataTable = createReactClass({
     var bodyHeight = height - totalHeightReserved;
     var scrollContentHeight = this._scrollHelper.getContentHeight();
     var totalHeightNeeded = scrollContentHeight + totalHeightReserved;
-    var scrollContentWidth = FixedDataTableWidthHelper.getTotalWidth(columns);
+    var scrollContentWidth = memoizedGetTotalWidth(columns);
 
     var horizontalScrollbarVisible =
       scrollContentWidth > width && props.overflowX !== 'hidden';

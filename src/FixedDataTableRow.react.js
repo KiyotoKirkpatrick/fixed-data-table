@@ -15,7 +15,8 @@ import FixedDataTableCellGroup from 'FixedDataTableCellGroup.react';
 import joinClasses from 'joinClasses';
 import translateDOMPositionXY from 'translateDOMPositionXY';
 import { bool, number, array, func, string } from 'prop-types';
-
+import { defaultMemoize } from 'memoize';
+import { getTotalWidth } from 'FixedDataTableWidthHelper';
 /**
  * Component that renders the row for <FixedDataTable />.
  * This component should not be used directly by developer. Instead,
@@ -29,6 +30,7 @@ const HAS_SHADOW_CLASS =
 const NO_SHADOW_CLASS =
   'fixedDataTableRowLayout_fixedColumnsDivider public_fixedDataTableRow_fixedColumnsDivider';
 
+const memoizedGetTotalWidth = defaultMemoize(getTotalWidth);
 class FixedDataTableRow extends React.Component {
   static displayName = 'FixedDataTableRow';
   static propTypes = {
@@ -122,7 +124,7 @@ class FixedDataTableRow extends React.Component {
     const defaultClassName =
       index % 2 === 1 ? ODD_ROW_CLASS_NAMES : EVEN_ROW_CLASS_NAMES;
 
-    const fixedColumnsWidth = this._getColumnsWidth(fixedColumns);
+    const fixedColumnsWidth = memoizedGetTotalWidth(fixedColumns);
     const fixedColumnGroup = (
       <FixedDataTableCellGroup
         key="fixed_cells"
@@ -215,14 +217,6 @@ class FixedDataTableRow extends React.Component {
       onContextMenu(event, index);
     }
   };
-  _getColumnsWidth(/*array*/ columns) /*number*/ {
-    var width = 0;
-    for (var i = 0; i < columns.length; ++i) {
-      width += columns[i].props.width;
-    }
-    return width;
-  }
-
   _renderColumnsShadow(/*number*/ left) /*?object*/ {
     if (left > 0) {
       const { scrollLeft, height } = this.props;

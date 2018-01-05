@@ -19,7 +19,11 @@ var FixedDataTableCell = require('FixedDataTableCell.react');
 
 var cx = require('cx');
 var translateDOMPositionXY = require('translateDOMPositionXY');
-
+var memoize = require('memoize');
+var FixedDataTableWidthHelper = require('FixedDataTableWidthHelper');
+var memoizedGetTotalWidth = memoize.defaultMemoize(
+  FixedDataTableWidthHelper.getTotalWidth
+);
 var PropTypes = require('prop-types');
 
 var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
@@ -77,7 +81,7 @@ var FixedDataTableCellGroupImpl = createReactClass({
       currentPosition += columnProps.width;
     }
 
-    var contentWidth = this._getColumnsWidth(columns);
+    var contentWidth = memoizedGetTotalWidth(columns);
 
     var style = {
       height: props.height,
@@ -127,14 +131,6 @@ var FixedDataTableCellGroupImpl = createReactClass({
         cell={columnProps.cell}
       />
     );
-  },
-
-  _getColumnsWidth(/*array*/ columns) /*number*/ {
-    var width = 0;
-    for (var i = 0; i < columns.length; ++i) {
-      width += columns[i].props.width;
-    }
-    return width;
   }
 });
 
