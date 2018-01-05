@@ -10,17 +10,11 @@
  * @typechecks
  */
 
-'use strict';
-
-var React = require('React');
-var createReactClass = require('create-react-class');
-var FixedDataTableCellGroup = require('FixedDataTableCellGroup.react');
-
-var cx = require('cx');
-var joinClasses = require('joinClasses');
-var translateDOMPositionXY = require('translateDOMPositionXY');
-
-var PropTypes = require('prop-types');
+import React, { Component } from 'react';
+import FixedDataTableCellGroup from 'FixedDataTableCellGroup.react';
+import joinClasses from 'joinClasses';
+import translateDOMPositionXY from 'translateDOMPositionXY';
+import { bool, number, array, func, string } from 'prop-types';
 
 /**
  * Component that renders the row for <FixedDataTable />.
@@ -28,63 +22,68 @@ var PropTypes = require('prop-types');
  * only <FixedDataTable /> should use the component internally.
  */
 const ODD_ROW_CLASS_NAMES =
-  'fixedDataTableRowLayout_main public_fixedDataTableRow_main public_fixedDataTableRow_highlighted public_fixedDataTableRow_odd ';
-const EVEN_ROW_CLASS_NAMES =
-  'fixedDataTableRowLayout_main public_fixedDataTableRow_main public_fixedDataTableRow_even ';
+  'fixedDataTableRowLayout_main public_fixedDataTableRow_highlighted ';
+const EVEN_ROW_CLASS_NAMES = 'fixedDataTableRowLayout_main ';
 const HAS_SHADOW_CLASS =
   'fixedDataTableRowLayout_fixedColumnsDivider fixedDataTableRowLayout_columnsShadow public_fixedDataTableRow_fixedColumnsDivider public_fixedDataTableRow_columnsShadow';
 const NO_SHADOW_CLASS =
   'fixedDataTableRowLayout_fixedColumnsDivider public_fixedDataTableRow_fixedColumnsDivider';
 
-var FixedDataTableRowImpl = createReactClass({
-  displayName: 'FixedDataTableRowImpl',
-  propTypes: {
-    isScrolling: PropTypes.bool,
-
+class FixedDataTableRow extends React.Component {
+  static displayName = 'FixedDataTableRow';
+  static propTypes = {
+    isScrolling: bool,
     /**
-     * Array of <FixedDataTableColumn /> for the fixed columns.
+     * The row index.
      */
-    fixedColumns: PropTypes.array.isRequired,
+    index: number.isRequired,
+    /**
+     * Width of the row.
+     */
+    width: number.isRequired,
 
     /**
      * Height of the row.
      */
-    height: PropTypes.number.isRequired,
-
+    height: number.isRequired,
     /**
-     * The row index.
+     * Array of <FixedDataTableColumn /> for the fixed columns.
      */
-    index: PropTypes.number.isRequired,
-
+    fixedColumns: array.isRequired,
     /**
      * Array of <FixedDataTableColumn /> for the scrollable columns.
      */
-    scrollableColumns: PropTypes.array.isRequired,
+    scrollableColumns: array.isRequired,
 
     /**
      * The distance between the left edge of the table and the leftmost portion
      * of the row currently visible in the table.
      */
-    scrollLeft: PropTypes.number.isRequired,
+    scrollLeft: number.isRequired,
+    /**
+     * Z-index on which the row will be displayed. Used e.g. for keeping
+     * header and footer in front of other rows.
+     */
+    zIndex: number,
 
     /**
-     * Width of the row.
+     * The vertical position where the row should render itself
      */
-    width: PropTypes.number.isRequired,
-
+    offsetTop: number.isRequired,
+    className: string,
     /**
      * Fire when a row is clicked.
      */
-    onClick: PropTypes.func,
+    onClick: func,
 
     /**
      * Fire when a row is double clicked.
      */
-    onDoubleClick: PropTypes.func,
+    onDoubleClick: func,
     /**
      * Fire when a row is double clicked.
      */
-    onContextMenu: PropTypes.func,
+    onContextMenu: func,
 
     /**
      * Callback for when resizer knob (in FixedDataTableCell) is clicked
@@ -96,27 +95,35 @@ var FixedDataTableRowImpl = createReactClass({
      * @param number|string columnKey
      * @param object event
      */
-    onColumnResize: PropTypes.func
-  },
+    onColumnResize: func
+  };
 
   render() /*object*/ {
-    const props = this.props;
     const {
-      height,
-      width,
-      index,
       isScrolling,
+      index,
+      zIndex,
+      width,
+      height,
+      offsetTop,
       onColumnResize,
       fixedColumns,
       scrollableColumns,
       className,
       scrollLeft
-    } = props;
-    var defaultClassName =
+    } = this.props;
+    const style = {
+      width,
+      height,
+      zIndex: zIndex ? zIndex : 0
+    };
+    translateDOMPositionXY(style, 0, offsetTop);
+
+    const defaultClassName =
       index % 2 === 1 ? ODD_ROW_CLASS_NAMES : EVEN_ROW_CLASS_NAMES;
 
-    var fixedColumnsWidth = this._getColumnsWidth(fixedColumns);
-    var fixedColumnGroup = (
+    const fixedColumnsWidth = this._getColumnsWidth(fixedColumns);
+    const fixedColumnGroup = (
       <FixedDataTableCellGroup
         key="fixed_cells"
         isScrolling={isScrolling}
@@ -130,8 +137,8 @@ var FixedDataTableRowImpl = createReactClass({
         rowIndex={index}
       />
     );
-    var columnsShadow = this._renderColumnsShadow(fixedColumnsWidth);
-    var scrollableColumnGroup = (
+    const columnsShadow = this._renderColumnsShadow(fixedColumnsWidth);
+    const scrollableColumnGroup = (
       <FixedDataTableCellGroup
         key="scrollable_cells"
         isScrolling={isScrolling}
@@ -146,136 +153,84 @@ var FixedDataTableRowImpl = createReactClass({
         rowIndex={index}
       />
     );
-
     return (
       <div
-        className={joinClasses(defaultClassName, className)}
+        style={style}
+        className={joinClasses(
+          defaultClassName,
+          className,
+          'fixedDataTableRowLayout_rowWrapper'
+        )}
         onClick={this._onClick}
         onDoubleClick={this._onDoubleClick}
         onMouseDown={this._onMouseDown}
         onMouseEnter={this._onMouseEnter}
         onMouseLeave={this._onMouseLeave}
         onContextMenu={this._onContextMenu}
-        style={{ width, height }}
       >
-        <div className={cx('fixedDataTableRowLayout/body')}>
-          {fixedColumnGroup}
-          {scrollableColumnGroup}
-          {columnsShadow}
-        </div>
+        {fixedColumnGroup}
+        {scrollableColumnGroup}
+        {columnsShadow}
       </div>
     );
-  },
+  }
 
+  _onClick = (/*object*/ event) => {
+    const { onClick, index } = this.props;
+    if (onClick) {
+      onClick(event, index);
+    }
+  };
+
+  _onDoubleClick = (/*object*/ event) => {
+    const { onDoubleClick, index } = this.props;
+    if (onDoubleClick) {
+      onDoubleClick(event, index);
+    }
+  };
+
+  _onMouseDown = (/*object*/ event) => {
+    const { onMouseDown, index } = this.props;
+    if (onMouseDown) {
+      onMouseDown(event, index);
+    }
+  };
+
+  _onMouseEnter = (/*object*/ event) => {
+    const { onMouseEnter, index } = this.props;
+    if (onMouseEnter) {
+      onMouseEnter(event, index);
+    }
+  };
+
+  _onMouseLeave = (/*object*/ event) => {
+    const { onMouseLeave, index } = this.props;
+    if (onMouseLeave) {
+      onMouseLeave(event, index);
+    }
+  };
+  _onContextMenu = (/*object*/ event) => {
+    const { onContextMenu, index } = this.props;
+    if (onContextMenu) {
+      onContextMenu(event, index);
+    }
+  };
   _getColumnsWidth(/*array*/ columns) /*number*/ {
     var width = 0;
     for (var i = 0; i < columns.length; ++i) {
       width += columns[i].props.width;
     }
     return width;
-  },
+  }
 
   _renderColumnsShadow(/*number*/ left) /*?object*/ {
     if (left > 0) {
-      var props = this.props;
-      var scrollLeft = props.scrollLeft;
+      const { scrollLeft, height } = this.props;
       var className = scrollLeft > 0 ? HAS_SHADOW_CLASS : NO_SHADOW_CLASS;
-      var style = {
-        left: left,
-        height: props.height
-      };
-      return <div className={className} style={style} />;
+      return <div className={className} style={{ left, height }} />;
     }
-  },
-
-  _onClick(/*object*/ event) {
-    const { onClick, index } = this.props;
-    if (onClick) {
-      onClick(event, index);
-    }
-  },
-
-  _onDoubleClick(/*object*/ event) {
-    const { onDoubleClick, index } = this.props;
-    if (onDoubleClick) {
-      onDoubleClick(event, index);
-    }
-  },
-
-  _onMouseDown(/*object*/ event) {
-    const { onMouseDown, index } = this.props;
-    if (onMouseDown) {
-      onMouseDown(event, index);
-    }
-  },
-
-  _onMouseEnter(/*object*/ event) {
-    const { onMouseEnter, index } = this.props;
-    if (onMouseEnter) {
-      onMouseEnter(event, index);
-    }
-  },
-
-  _onMouseLeave(/*object*/ event) {
-    const { onMouseLeave, index } = this.props;
-    if (onMouseLeave) {
-      onMouseLeave(event, index);
-    }
-  },
-  _onContextMenu(/*object*/ event) {
-    const { onContextMenu, index } = this.props;
-    if (onContextMenu) {
-      onContextMenu(event, index);
-    }
+    return null;
   }
-});
-
-var FixedDataTableRow = createReactClass({
-  displayName: 'FixedDataTableRow',
-  propTypes: {
-    isScrolling: PropTypes.bool,
-
-    /**
-     * Height of the row.
-     */
-    height: PropTypes.number.isRequired,
-
-    /**
-     * Z-index on which the row will be displayed. Used e.g. for keeping
-     * header and footer in front of other rows.
-     */
-    zIndex: PropTypes.number,
-
-    /**
-     * The vertical position where the row should render itself
-     */
-    offsetTop: PropTypes.number.isRequired,
-
-    /**
-     * Width of the row.
-     */
-    width: PropTypes.number.isRequired
-  },
-
-  render() /*object*/ {
-    var props = this.props;
-    var style = {
-      width: props.width,
-      height: props.height,
-      zIndex: props.zIndex ? props.zIndex : 0
-    };
-    translateDOMPositionXY(style, 0, props.offsetTop);
-
-    return (
-      <div style={style} className={cx('fixedDataTableRowLayout/rowWrapper')}>
-        <FixedDataTableRowImpl
-          {...props}
-          offsetTop={undefined}
-          zIndex={undefined}
-        />
-      </div>
-    );
-  }
-});
+}
 
 module.exports = FixedDataTableRow;
