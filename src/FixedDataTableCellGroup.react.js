@@ -9,36 +9,22 @@
  * @providesModule FixedDataTableCellGroup.react
  * @typechecks
  */
+import React, { Component } from 'react';
+import FixedDataTableHelper from 'FixedDataTableHelper';
+import FixedDataTableCell from 'FixedDataTableCell.react';
 
-'use strict';
+import cx from 'cx';
+import translateDOMPositionXY from 'translateDOMPositionXY';
+import { defaultMemoize } from 'memoize';
+import FixedDataTableWidthHelper from 'FixedDataTableWidthHelper';
+import PropTypes from 'prop-types';
 
-var FixedDataTableHelper = require('FixedDataTableHelper');
-var React = require('React');
-var createReactClass = require('create-react-class');
-var FixedDataTableCell = require('FixedDataTableCell.react');
-
-var cx = require('cx');
-var translateDOMPositionXY = require('translateDOMPositionXY');
-var memoize = require('memoize');
-var FixedDataTableWidthHelper = require('FixedDataTableWidthHelper');
-var memoizedGetTotalWidth = memoize.defaultMemoize(
+const memoizedGetTotalWidth = defaultMemoize(
   FixedDataTableWidthHelper.getTotalWidth
 );
-var PropTypes = require('prop-types');
-
-var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
-
-var FixedDataTableCellGroupImpl = createReactClass({
-  displayName: 'FixedDataTableCellGroupImpl',
-  /**
-   * PropTypes are disabled in this component, because having them on slows
-   * down the FixedDataTable hugely in DEV mode. You can enable them back for
-   * development, but please don't commit this component with enabled propTypes.
-   */
+const DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
+/*
   propTypes_DISABLED_FOR_PERFORMANCE: {
-    /**
-     * Array of <FixedDataTableColumn />.
-     */
     columns: PropTypes.array.isRequired,
 
     isScrolling: PropTypes.bool,
@@ -55,93 +41,83 @@ var FixedDataTableCellGroupImpl = createReactClass({
 
     zIndex: PropTypes.number.isRequired
   },
+*/
+function FixedDataTableCellGroupImpl(props) {
+  const { columns, left, width, height, zIndex } = props;
+  const cells = new Array(columns.length);
 
-  render() /*object*/ {
-    var props = this.props;
-    var columns = props.columns;
-    var cells = new Array(columns.length);
-
-    var currentPosition = 0;
-    for (var i = 0, j = columns.length; i < j; i++) {
-      var columnProps = columns[i].props;
-      if (
-        !columnProps.allowCellsRecycling ||
-        (currentPosition - props.left <= props.width &&
-          currentPosition - props.left + columnProps.width >= 0)
-      ) {
-        var key = 'cell_' + i;
-        cells[i] = this._renderCell(
-          props.rowIndex,
-          props.rowHeight,
-          columnProps,
-          currentPosition,
-          key
-        );
-      }
-      currentPosition += columnProps.width;
+  let currentPosition = 0;
+  for (let i = 0, j = columns.length; i < j; i++) {
+    const columnProps = columns[i].props;
+    if (
+      !columnProps.allowCellsRecycling ||
+      (currentPosition - left <= width &&
+        currentPosition - left + columnProps.width >= 0)
+    ) {
+      const key = 'cell_' + i;
+      cells[i] = _renderCell(props, columnProps, currentPosition, key);
     }
-
-    var contentWidth = memoizedGetTotalWidth(columns);
-
-    var style = {
-      height: props.height,
-      position: 'absolute',
-      width: contentWidth,
-      zIndex: props.zIndex
-    };
-    translateDOMPositionXY(style, -1 * DIR_SIGN * props.left, 0);
-
-    return (
-      <div
-        className={cx('fixedDataTableCellGroupLayout/cellGroup')}
-        style={style}
-      >
-        {cells}
-      </div>
-    );
-  },
-
-  _renderCell(
-    /*number*/ rowIndex,
-    /*number*/ height,
-    /*object*/ columnProps,
-    /*number*/ left,
-    /*string*/ key
-  ) /*object*/ {
-    var props = this.props;
-    var cellIsResizable = columnProps.isResizable && props.onColumnResize;
-    var onColumnResize = cellIsResizable ? props.onColumnResize : null;
-
-    var className = columnProps.cellClassName;
-
-    return (
-      <FixedDataTableCell
-        isScrolling={props.isScrolling}
-        align={columnProps.align}
-        className={className}
-        height={height}
-        key={key}
-        maxWidth={columnProps.maxWidth}
-        minWidth={columnProps.minWidth}
-        onColumnResize={onColumnResize}
-        rowIndex={rowIndex}
-        columnKey={columnProps.columnKey}
-        width={columnProps.width}
-        left={left}
-        cell={columnProps.cell}
-      />
-    );
+    currentPosition += columnProps.width;
   }
-});
+  const contentWidth = memoizedGetTotalWidth(columns);
 
-var FixedDataTableCellGroup = createReactClass({
-  displayName: 'FixedDataTableCellGroup',
+  const style = {
+    height,
+    position: 'absolute',
+    width: contentWidth,
+    zIndex
+  };
+  translateDOMPositionXY(style, -1 * DIR_SIGN * left, 0);
+
+  return (
+    <div
+      className={cx('fixedDataTableCellGroupLayout/cellGroup')}
+      style={style}
+    >
+      {cells}
+    </div>
+  );
+}
+FixedDataTableCellGroupImpl.displayName = 'FixedDataTableCellGroupImpl';
+
+function _renderCell(
+  /*object*/ props,
+  /*object*/ columnProps,
+  /*number*/ left,
+  /*string*/ key
+) /*object*/ {
+  const cellIsResizable = columnProps.isResizable && props.onColumnResize;
+  var onColumnResize = cellIsResizable ? props.onColumnResize : null;
+
+  var className = columnProps.cellClassName;
+
+  return (
+    <FixedDataTableCell
+      isScrolling={props.isScrolling}
+      align={columnProps.align}
+      className={className}
+      height={props.height}
+      key={key}
+      maxWidth={columnProps.maxWidth}
+      minWidth={columnProps.minWidth}
+      onColumnResize={onColumnResize}
+      rowIndex={props.rowIndex}
+      columnKey={columnProps.columnKey}
+      width={columnProps.width}
+      left={left}
+      cell={columnProps.cell}
+    />
+  );
+}
+
+export class FixedDataTableCellGroup extends Component {
+  static displayName = 'FixedDataTableCellGroup';
   /**
    * PropTypes are disabled in this component, because having them on slows
    * down the FixedDataTable hugely in DEV mode. You can enable them back for
    * development, but please don't commit this component with enabled propTypes.
    */
-  propTypes_DISABLED_FOR_PERFORMANCE: {
+  static propTypes_DISABLED_FOR_PERFORMANCE = {
     isScrolling: PropTypes.bool,
     /**
      * Height of the row.
@@ -156,26 +132,21 @@ var FixedDataTableCellGroup = createReactClass({
      * header and footer in front of other rows.
      */
     zIndex: PropTypes.number.isRequired
-  },
-
+  };
+  static defaultProps = {
+    offsetLeft: 0
+  };
   shouldComponentUpdate(/*object*/ nextProps) /*boolean*/ {
     return (
       !nextProps.isScrolling ||
       this.props.rowIndex !== nextProps.rowIndex ||
       this.props.left !== nextProps.left
     );
-  },
-
-  getDefaultProps() /*object*/ {
-    return {
-      offsetLeft: 0
-    };
-  },
-
+  }
   render() /*object*/ {
-    var { offsetLeft, ...props } = this.props;
+    const { offsetLeft, ...props } = this.props;
 
-    var style = {
+    const style = {
       height: props.height
     };
 
@@ -184,42 +155,36 @@ var FixedDataTableCellGroup = createReactClass({
     } else {
       style.right = offsetLeft;
     }
-
-    var onColumnResize = props.onColumnResize ? this._onColumnResize : null;
-
+    const onColumnResize = props.onColumnResize ? this._onColumnResize : null;
     return (
       <div
         style={style}
         className={cx('fixedDataTableCellGroupLayout/cellGroupWrapper')}
       >
-        <FixedDataTableCellGroupImpl
-          {...props}
-          onColumnResize={onColumnResize}
-        />
+        {FixedDataTableCellGroupImpl({ ...props, onColumnResize })}
       </div>
     );
-  },
-
-  _onColumnResize(
-    /*number*/ left,
+  }
+  _onColumnResize = (
+    /*number*/ cellLeft,
     /*number*/ width,
     /*?number*/ minWidth,
     /*?number*/ maxWidth,
     /*string|number*/ columnKey,
     /*object*/ event
-  ) {
-    var props = this.props;
-    props.onColumnResize &&
-      props.onColumnResize(
-        props.offsetLeft,
-        left - props.left + width,
+  ) => {
+    const { onColumnResize, offsetLeft, left } = this.props;
+    onColumnResize &&
+      onColumnResize(
+        offsetLeft,
+        cellLeft - left + width,
         width,
         minWidth,
         maxWidth,
         columnKey,
         event
       );
-  }
-});
+  };
+}
 
-module.exports = FixedDataTableCellGroup;
+export default FixedDataTableCellGroup;

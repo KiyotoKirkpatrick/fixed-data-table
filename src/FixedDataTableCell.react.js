@@ -10,31 +10,29 @@
  * @typechecks
  */
 
-var FixedDataTableCellDefault = require('FixedDataTableCellDefault.react');
-var FixedDataTableHelper = require('FixedDataTableHelper');
-var React = require('React');
-var createReactClass = require('create-react-class');
-var cx = require('cx');
-var joinClasses = require('joinClasses');
+import React, { Component } from 'react';
+import FixedDataTableCellDefault from 'FixedDataTableCellDefault.react';
+import FixedDataTableHelper from 'FixedDataTableHelper';
+import cx from 'cx';
+import joinClasses from 'joinClasses';
+import PropTypes from 'prop-types';
 
-var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
+const DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
 
-var PropTypes = require('prop-types');
-
-var DEFAULT_PROPS = {
+const DEFAULT_PROPS = {
   align: 'left',
   highlighted: false
 };
 
-var FixedDataTableCell = createReactClass({
-  displayName: 'FixedDataTableCell',
+export class FixedDataTableCell extends Component {
+  static displayName = 'FixedDataTableCell';
 
   /**
    * PropTypes are disabled in this component, because having them on slows
    * down the FixedDataTable hugely in DEV mode. You can enable them back for
    * development, but please don't commit this component with enabled propTypes.
    */
-  propTypes_DISABLED_FOR_PERFORMANCE: {
+  static propTypes_DISABLED_FOR_PERFORMANCE = {
     isScrolling: PropTypes.bool,
     align: PropTypes.oneOf(['left', 'center', 'right']),
     className: PropTypes.string,
@@ -49,7 +47,6 @@ var FixedDataTableCell = createReactClass({
       PropTypes.element,
       PropTypes.func
     ]),
-
     columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
@@ -75,20 +72,17 @@ var FixedDataTableCell = createReactClass({
      * The left offset in pixels of the cell.
      */
     left: PropTypes.number
-  },
+  };
+  static defaultProps = DEFAULT_PROPS;
 
   shouldComponentUpdate(nextProps) {
     return !nextProps.isScrolling || this.props.rowIndex !== nextProps.rowIndex;
-  },
-
-  getDefaultProps() /*object*/ {
-    return DEFAULT_PROPS;
-  },
+  }
 
   render() /*object*/ {
-    var { height, width, columnKey, ...props } = this.props;
+    const { height, width, columnKey, ...props } = this.props;
 
-    var style = {
+    const style = {
       height,
       width
     };
@@ -99,7 +93,7 @@ var FixedDataTableCell = createReactClass({
       style.right = props.left;
     }
 
-    var className = joinClasses(
+    const className = joinClasses(
       cx({
         'fixedDataTableCellLayout/main': true,
         'fixedDataTableCellLayout/lastChild': props.lastChild,
@@ -112,7 +106,7 @@ var FixedDataTableCell = createReactClass({
       props.className
     );
 
-    var columnResizerComponent;
+    let columnResizerComponent;
     if (props.onColumnResize) {
       var columnResizerStyle = {
         height
@@ -134,7 +128,7 @@ var FixedDataTableCell = createReactClass({
       );
     }
 
-    var cellProps = {
+    const cellProps = {
       columnKey,
       height,
       width
@@ -144,7 +138,7 @@ var FixedDataTableCell = createReactClass({
       cellProps.rowIndex = props.rowIndex;
     }
 
-    var content;
+    let content;
     if (React.isValidElement(props.cell)) {
       content = React.cloneElement(props.cell, cellProps);
     } else if (typeof props.cell === 'function') {
@@ -163,10 +157,9 @@ var FixedDataTableCell = createReactClass({
         {content}
       </div>
     );
-  },
-
-  _onColumnResizerMouseDown(/*object*/ event) {
-    var props = this.props;
+  }
+  _onColumnResizerMouseDown = (/*object*/ event) => {
+    const props = this.props;
     props.onColumnResize(
       props.left,
       props.width,
@@ -175,7 +168,7 @@ var FixedDataTableCell = createReactClass({
       props.columnKey,
       event
     );
-  }
-});
+  };
+}
 
-module.exports = FixedDataTableCell;
+export default FixedDataTableCell;
